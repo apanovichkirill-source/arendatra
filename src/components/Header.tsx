@@ -8,8 +8,8 @@ export async function Header() {
     <header className="bg-brand-navy">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
         <Link href="/" className="flex items-center gap-2 text-xl font-bold text-white">
-          <span className="rounded bg-brand-orange px-2 py-1 text-sm">П</span>
-          Покатили
+          <span className="rounded bg-brand-orange px-2 py-1 text-sm">А</span>
+          Арендатра
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
