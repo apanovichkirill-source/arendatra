@@ -8,8 +8,9 @@ datasource db {
 }
 
 enum CategoryGroup {
-  CAR // легковые авто
-  SPECIAL // спецтехника и грузовики
+  LIFTING // грузоподъёмная техника
+  EARTHMOVING // землеройная техника
+  PASSENGER // пассажирские перевозки
 }
 
 enum BookingStatus {

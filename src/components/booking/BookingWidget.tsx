@@ -120,6 +120,7 @@ export function BookingWidget({
         <span className="ml-1 text-sm font-normal text-gray-500">/ час</span>
       </p>
       <p className="mt-1 text-xs text-gray-500">Минимальная аренда — {effectiveMinHours} ч.</p>
+      <p className="mt-1 text-xs text-gray-400">Цена без учёта 5% НДС</p>
 
       <div className="mt-4">
         <p className="mb-2 text-sm font-medium text-gray-700">

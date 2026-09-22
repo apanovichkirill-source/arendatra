@@ -7,11 +7,32 @@ export function VehicleIcon({
   group: CategoryGroup;
   className?: string;
 }) {
-  if (group === "SPECIAL") {
+  if (group === "LIFTING") {
     return (
       <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
         <path
-          d="M2 16h2m0 0V9a1 1 0 0 1 1-1h5l3 4h4a2 2 0 0 1 2 2v2m-14 0h9m-9 0a2 2 0 1 0 4 0m-4 0a2 2 0 1 1 4 0m5 0a2 2 0 1 0 4 0m-4 0a2 2 0 1 1 4 0M9 8V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3"
+          d="M3 20h13M7 20V5m0 0 12 5h-8M18 10v6.5M18 16.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2ZM4.5 20v-3.5a1.5 1.5 0 0 1 1.5-1.5h2"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  if (group === "EARTHMOVING") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+        <path
+          d="M3 20h4m0 0a2 2 0 1 0 4 0m-4 0h6m6 0a2 2 0 1 1-4 0m4 0h1.5M3 20v-3a1 1 0 0 1 1-1h6v-3.2c0-.5.3-.9.7-1.1l3-1.5c.5-.2 1 .1 1 .7v3.6l3.5 1.6c.5.2.8.7.8 1.3V20"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M14.7 10.1 18 6.5m0 0h-2.3M18 6.5v2.3"
           stroke="currentColor"
           strokeWidth="1.6"
           strokeLinecap="round"

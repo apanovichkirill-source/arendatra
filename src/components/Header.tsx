@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getBuyerSession } from "@/lib/session";
+import { Logo } from "@/components/Logo";
 
 export async function Header() {
   const session = await getBuyerSession();
@@ -7,9 +8,8 @@ export async function Header() {
   return (
     <header className="bg-brand-navy">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
-        <Link href="/" className="flex items-center gap-2 text-xl font-bold text-white">
-          <span className="rounded bg-brand-orange px-2 py-1 text-sm">А</span>
-          Арендатра
+        <Link href="/" className="text-white">
+          <Logo />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -20,16 +20,22 @@ export async function Header() {
             Каталог
           </Link>
           <Link
-            href="/catalog?group=CAR"
+            href="/catalog?group=LIFTING"
             className="rounded-lg px-3 py-2 text-sm font-medium text-white hover:bg-white/10"
           >
-            Легковые авто
+            Грузоподъёмная
           </Link>
           <Link
-            href="/catalog?group=SPECIAL"
+            href="/catalog?group=EARTHMOVING"
             className="rounded-lg px-3 py-2 text-sm font-medium text-white hover:bg-white/10"
           >
-            Спецтехника
+            Землеройная
+          </Link>
+          <Link
+            href="/catalog?group=PASSENGER"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-white hover:bg-white/10"
+          >
+            Перевозки
           </Link>
         </nav>
 

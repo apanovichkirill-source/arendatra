@@ -1,17 +1,23 @@
 import Link from "next/link";
 import { getVehicles, getCities } from "@/lib/vehicles";
 import { VehicleCard } from "@/components/catalog/VehicleCard";
+import { PRICING_NOTE } from "@/lib/format";
 
 const GROUPS = [
   {
-    group: "CAR",
-    title: "Легковые авто",
-    description: "Седаны, кроссоверы, минивэны для города и поездок",
+    group: "LIFTING",
+    title: "Грузоподъёмная техника",
+    description: "Автокраны 25 и 50 т, автовышки (АГП)",
   },
   {
-    group: "SPECIAL",
-    title: "Спецтехника и грузовики",
-    description: "Экскаваторы, самосвалы, автокраны, погрузчики",
+    group: "EARTHMOVING",
+    title: "Землеройная техника",
+    description: "Гусеничные экскаваторы, бульдозеры",
+  },
+  {
+    group: "PASSENGER",
+    title: "Пассажирские перевозки",
+    description: "Вахтовые автобусы, легковой транспорт до 8 мест",
   },
 ] as const;
 
@@ -39,11 +45,11 @@ export default async function HomePage() {
       <section className="bg-brand-navy">
         <div className="mx-auto max-w-6xl px-4 py-16 text-white">
           <h1 className="max-w-2xl text-3xl font-bold sm:text-4xl">
-            Аренда легковых авто и спецтехники напрямую у владельцев
+            Аренда спецтехники и транспорта для строительных и монтажных работ
           </h1>
           <p className="mt-4 max-w-xl text-white/80">
-            Смотрите свободные даты в календаре и бронируйте по часам — без предоплаты
-            и лишних звонков.
+            Автокраны, автовышки, экскаваторы, бульдозеры, вахтовые автобусы и легковой
+            транспорт — почасовая аренда с прозрачными тарифами, без предоплаты.
           </p>
 
           <form
@@ -86,7 +92,7 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-10">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-3">
           {GROUPS.map((g) => (
             <Link
               key={g.group}
@@ -98,6 +104,7 @@ export default async function HomePage() {
             </Link>
           ))}
         </div>
+        <p className="mt-4 text-xs text-gray-400">{PRICING_NOTE}</p>
       </section>
 
       {featured.length > 0 && (
@@ -145,10 +152,10 @@ export default async function HomePage() {
         <div className="flex flex-col items-start gap-4 rounded-xl bg-brand-blue-light p-8 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-lg font-bold text-brand-navy">
-              Есть свой транспорт для сдачи в аренду?
+              Не нашли нужную технику или нужен расчёт под ваш объект?
             </h2>
             <p className="mt-1 text-sm text-gray-600">
-              Расскажите о нём нашей команде — мы разместим объявление в каталоге.
+              Свяжитесь с менеджером — подберём технику и посчитаем итоговую стоимость.
             </p>
           </div>
           <a

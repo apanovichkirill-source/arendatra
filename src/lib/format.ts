@@ -25,9 +25,13 @@ export function formatPrice(
 }
 
 export const CATEGORY_GROUP_LABELS: Record<string, string> = {
-  CAR: "Легковые авто",
-  SPECIAL: "Спецтехника и грузовики",
+  LIFTING: "Грузоподъёмная техника",
+  EARTHMOVING: "Землеройная техника",
+  PASSENGER: "Пассажирские перевозки",
 };
+
+export const PRICING_NOTE =
+  "Все тарифы указаны без учёта 5% НДС. Итоговая стоимость зависит от условий оплаты, количества арендуемой техники и периода аренды. Конечную стоимость уточняйте у менеджера.";
 
 export const BOOKING_STATUS_LABELS: Record<string, string> = {
   NEW: "Новая",

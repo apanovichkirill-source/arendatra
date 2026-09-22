@@ -61,7 +61,7 @@ export default async function VehiclePage({
               <dl className="grid grid-cols-2 gap-y-2 text-sm">
                 {Object.entries(attributes).map(([key, value]) => (
                   <div key={key} className="contents">
-                    <dt className="text-gray-500 capitalize">{key}</dt>
+                    <dt className="text-gray-500">{key}</dt>
                     <dd className="text-gray-900">{value}</dd>
                   </div>
                 ))}
