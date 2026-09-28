@@ -11,6 +11,11 @@ export function normalizePhone(raw: string) {
   return `+${digits}`;
 }
 
+// Номер телефона должен содержать ровно 11 цифр (код страны + номер), например 79001234567
+export function isValidPhone(raw: string) {
+  return raw.replace(/\D/g, "").length === 11;
+}
+
 export function formatPrice(
   value: number | string | Prisma.Decimal | null | undefined
 ) {

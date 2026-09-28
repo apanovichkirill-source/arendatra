@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, verifyPasswordConstantTime } from "@/lib/password";
 import { createBuyerSession, clearBuyerSession } from "@/lib/session";
-import { normalizePhone } from "@/lib/format";
+import { normalizePhone, isValidPhone } from "@/lib/format";
 import { isLocked, lockedMessage, nextFailureState } from "@/lib/auth-security";
 
 // Имя и фамилия из букв (кириллица/латиница), без цифр и никнеймов: минимум два слова
@@ -14,7 +14,10 @@ const REAL_NAME_REGEX =
 const CITY_REGEX = /^[A-Za-zА-ЯЁа-яё]+(?:[-\s][A-Za-zА-ЯЁа-яё]+)*$/;
 
 const registerSchema = z.object({
-  phone: z.string().min(5, "Укажите номер телефона"),
+  phone: z
+    .string()
+    .min(5, "Укажите номер телефона")
+    .refine(isValidPhone, "Номер телефона должен содержать 11 цифр"),
   password: z.string().min(6, "Пароль должен быть не короче 6 символов"),
   name: z
     .string()
@@ -33,7 +36,10 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-  phone: z.string().min(5, "Укажите номер телефона"),
+  phone: z
+    .string()
+    .min(5, "Укажите номер телефона")
+    .refine(isValidPhone, "Номер телефона должен содержать 11 цифр"),
   password: z.string().min(1, "Введите пароль"),
 });
 

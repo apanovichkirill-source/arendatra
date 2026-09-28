@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getBuyerSession } from "@/lib/session";
-import { normalizePhone } from "@/lib/format";
+import { normalizePhone, isValidPhone } from "@/lib/format";
 import { hasOverlappingBooking } from "@/lib/vehicles";
 
 const MIN_BOOKING_HOURS = 1;
@@ -15,7 +15,10 @@ const bookingSchema = z
     startAt: z.string().min(1, "Укажите дату и время начала"),
     endAt: z.string().min(1, "Укажите дату и время окончания"),
     contactName: z.string().optional(),
-    contactPhone: z.string().min(5, "Укажите номер телефона"),
+    contactPhone: z
+      .string()
+      .min(5, "Укажите номер телефона")
+      .refine(isValidPhone, "Номер телефона должен содержать 11 цифр"),
     comment: z.string().optional(),
     consent: z.literal(true, {
       message: "Нужно согласие на обработку персональных данных",

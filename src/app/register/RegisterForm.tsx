@@ -43,9 +43,6 @@ export function RegisterForm() {
           placeholder="Иван Петров"
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
         />
-        <p className="mt-1 text-xs text-gray-400">
-          Настоящее имя и фамилия — без ников и цифр
-        </p>
       </div>
 
       <div>
