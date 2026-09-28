@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getBuyerSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { formatPrice, formatDateTime, BOOKING_STATUS_LABELS } from "@/lib/format";
 import { logoutBuyer } from "@/lib/actions/buyer-auth";
+
+export const metadata: Metadata = {
+  title: "Личный кабинет",
+  robots: { index: false, follow: false },
+};
 
 export default async function AccountPage() {
   const session = await getBuyerSession();

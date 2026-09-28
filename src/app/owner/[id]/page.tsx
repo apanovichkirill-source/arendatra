@@ -1,12 +1,21 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getOwnerWithVehicles } from "@/lib/vehicles";
 import { VehicleCard } from "@/components/catalog/VehicleCard";
 
-export default async function OwnerPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+type Props = { params: Promise<{ id: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const owner = await getOwnerWithVehicles(id);
+  if (!owner) return { title: "Владелец не найден" };
+  return {
+    title: `${owner.name} — транспорт в аренду`,
+    description: owner.description ?? `Транспорт от ${owner.name} на Арендатра.`,
+  };
+}
+
+export default async function OwnerPage({ params }: Props) {
   const { id } = await params;
   const owner = await getOwnerWithVehicles(id);
   if (!owner || !owner.isActive) notFound();

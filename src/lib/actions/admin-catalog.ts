@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/session";
 
@@ -110,6 +110,7 @@ export async function createVehicle(formData: FormData) {
   }
   await prisma.vehicle.create({ data: { ...data, slug } });
   revalidatePath("/admin/vehicles");
+  revalidateTag("vehicles", { expire: 0 });
   redirect("/admin/vehicles");
 }
 
@@ -118,6 +119,7 @@ export async function updateVehicle(id: string, formData: FormData) {
   const data = parseVehicleForm(formData);
   await prisma.vehicle.update({ where: { id }, data });
   revalidatePath("/admin/vehicles");
+  revalidateTag("vehicles", { expire: 0 });
   redirect("/admin/vehicles");
 }
 
@@ -125,6 +127,7 @@ export async function deleteVehicle(id: string) {
   await requireAdmin();
   await prisma.vehicle.delete({ where: { id } });
   revalidatePath("/admin/vehicles");
+  revalidateTag("vehicles", { expire: 0 });
 }
 
 const BOOKING_STATUSES = ["NEW", "CONFIRMED", "DONE", "CANCELED"] as const;

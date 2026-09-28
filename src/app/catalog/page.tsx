@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import { getCategories, getCities, getVehicles } from "@/lib/vehicles";
 import { VehicleCard } from "@/components/catalog/VehicleCard";
 import { CATEGORY_GROUP_LABELS } from "@/lib/format";
 import type { CategoryGroup } from "@prisma/client";
+
+export const metadata: Metadata = {
+  title: "Каталог техники в аренду",
+  description:
+    "Автокраны, автовышки, экскаваторы, бульдозеры, вахтовые автобусы и легковой транспорт. Фильтры по датам, городу и цене.",
+};
 
 type SearchParams = {
   group?: string;

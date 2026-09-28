@@ -1,16 +1,32 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getVehicleBySlug, getUpcomingBookings } from "@/lib/vehicles";
 import { getBuyerSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { formatPrice } from "@/lib/format";
 import { BookingWidget } from "@/components/booking/BookingWidget";
 import { VehicleIcon } from "@/components/catalog/VehicleIcon";
 
-export default async function VehiclePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const vehicle = await getVehicleBySlug(slug);
+  if (!vehicle) return { title: "Транспорт не найден" };
+
+  const description = `${formatPrice(vehicle.pricePerHour)} / час. ${
+    vehicle.description ?? `Аренда: ${vehicle.title} в ${vehicle.city ?? "Москве"}.`
+  }`;
+
+  return {
+    title: `${vehicle.title} — аренда от ${formatPrice(vehicle.pricePerHour)}/ч`,
+    description,
+    openGraph: { title: vehicle.title, description },
+  };
+}
+
+export default async function VehiclePage({ params }: Props) {
   const { slug } = await params;
   const vehicle = await getVehicleBySlug(slug);
   if (!vehicle || !vehicle.isActive) notFound();
