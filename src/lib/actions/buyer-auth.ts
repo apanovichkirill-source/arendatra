@@ -3,15 +3,30 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { hashPassword, verifyPassword } from "@/lib/password";
+import { hashPassword, verifyPasswordConstantTime } from "@/lib/password";
 import { createBuyerSession, clearBuyerSession } from "@/lib/session";
 import { normalizePhone } from "@/lib/format";
+import { isLocked, lockedMessage, nextFailureState } from "@/lib/auth-security";
+
+// Имя и фамилия из букв (кириллица/латиница), без цифр и никнеймов: минимум два слова
+const REAL_NAME_REGEX =
+  /^[A-Za-zА-ЯЁа-яё]+(?:-[A-Za-zА-ЯЁа-яё]+)?(?:\s+[A-Za-zА-ЯЁа-яё]+(?:-[A-Za-zА-ЯЁа-яё]+)?){1,3}$/;
+const CITY_REGEX = /^[A-Za-zА-ЯЁа-яё]+(?:[-\s][A-Za-zА-ЯЁа-яё]+)*$/;
 
 const registerSchema = z.object({
   phone: z.string().min(5, "Укажите номер телефона"),
   password: z.string().min(6, "Пароль должен быть не короче 6 символов"),
-  name: z.string().optional(),
-  city: z.string().optional(),
+  name: z
+    .string()
+    .trim()
+    .min(1, "Укажите имя и фамилию")
+    .regex(REAL_NAME_REGEX, "Укажите настоящее имя и фамилию (не ник и не цифры)"),
+  city: z
+    .string()
+    .trim()
+    .min(2, "Укажите город")
+    .regex(CITY_REGEX, "Город должен состоять из букв"),
+  organization: z.string().trim().max(200).optional(),
   consent: z.literal("on", {
     message: "Нужно согласие на обработку персональных данных",
   }),
@@ -31,8 +46,9 @@ export async function registerBuyer(
   const parsed = registerSchema.safeParse({
     phone: formData.get("phone"),
     password: formData.get("password"),
-    name: formData.get("name") || undefined,
-    city: formData.get("city") || undefined,
+    name: formData.get("name"),
+    city: formData.get("city"),
+    organization: formData.get("organization") || undefined,
     consent: formData.get("consent") || undefined,
   });
 
@@ -53,6 +69,7 @@ export async function registerBuyer(
       passwordHash: await hashPassword(parsed.data.password),
       name: parsed.data.name,
       city: parsed.data.city,
+      organization: parsed.data.organization || null,
       consentAt: new Date(),
     },
   });
@@ -77,8 +94,27 @@ export async function loginBuyer(
   const phone = normalizePhone(parsed.data.phone);
   const buyer = await prisma.buyer.findUnique({ where: { phone } });
 
-  if (!buyer || !(await verifyPassword(parsed.data.password, buyer.passwordHash))) {
+  if (buyer && isLocked(buyer.lockedUntil)) {
+    return { error: lockedMessage(buyer.lockedUntil) };
+  }
+
+  const valid = await verifyPasswordConstantTime(parsed.data.password, buyer?.passwordHash);
+
+  if (!buyer || !valid) {
+    if (buyer) {
+      await prisma.buyer.update({
+        where: { id: buyer.id },
+        data: nextFailureState(buyer.failedAttempts),
+      });
+    }
     return { error: "Неверный телефон или пароль" };
+  }
+
+  if (buyer.failedAttempts > 0 || buyer.lockedUntil) {
+    await prisma.buyer.update({
+      where: { id: buyer.id },
+      data: { failedAttempts: 0, lockedUntil: null },
+    });
   }
 
   await createBuyerSession(buyer.id);

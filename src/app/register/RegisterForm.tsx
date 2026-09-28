@@ -35,24 +35,38 @@ export function RegisterForm() {
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Имя (необязательно)
-        </label>
+        <label className="mb-1 block text-sm font-medium text-gray-700">Имя и фамилия</label>
         <input
           type="text"
           name="name"
+          required
+          placeholder="Иван Петров"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+        />
+        <p className="mt-1 text-xs text-gray-400">
+          Настоящее имя и фамилия — без ников и цифр
+        </p>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-gray-700">Город</label>
+        <input
+          type="text"
+          name="city"
+          required
+          defaultValue="Москва"
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
         />
       </div>
 
       <div>
         <label className="mb-1 block text-sm font-medium text-gray-700">
-          Город (необязательно)
+          Название организации (необязательно)
         </label>
         <input
           type="text"
-          name="city"
-          defaultValue="Москва"
+          name="organization"
+          placeholder="ООО «Компания»"
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
         />
       </div>

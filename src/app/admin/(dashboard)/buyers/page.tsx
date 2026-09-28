@@ -21,6 +21,7 @@ export default async function AdminBuyersPage() {
               <th className="px-4 py-3">Имя</th>
               <th className="px-4 py-3">Телефон</th>
               <th className="px-4 py-3">Город</th>
+              <th className="px-4 py-3">Организация</th>
               <th className="px-4 py-3">Регистрация</th>
               <th className="px-4 py-3">Согласие на данные</th>
               <th className="px-4 py-3">Броней</th>
@@ -36,6 +37,7 @@ export default async function AdminBuyersPage() {
                   </a>
                 </td>
                 <td className="px-4 py-3 text-gray-600">{b.city || "—"}</td>
+                <td className="px-4 py-3 text-gray-600">{b.organization || "—"}</td>
                 <td className="px-4 py-3 text-gray-600">{formatDate(b.createdAt)}</td>
                 <td className="px-4 py-3 text-gray-600">
                   {b.consentAt ? formatDate(b.consentAt) : "—"}

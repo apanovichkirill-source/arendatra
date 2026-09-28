@@ -3,8 +3,9 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { verifyPassword } from "@/lib/password";
+import { verifyPasswordConstantTime } from "@/lib/password";
 import { createAdminSession, clearAdminSession } from "@/lib/session";
+import { isLocked, lockedMessage, nextFailureState } from "@/lib/auth-security";
 
 const loginSchema = z.object({
   login: z.string().min(1, "Введите логин"),
@@ -27,8 +28,28 @@ export async function loginAdmin(
   }
 
   const admin = await prisma.admin.findUnique({ where: { login: parsed.data.login } });
-  if (!admin || !(await verifyPassword(parsed.data.password, admin.passwordHash))) {
+
+  if (admin && isLocked(admin.lockedUntil)) {
+    return { error: lockedMessage(admin.lockedUntil) };
+  }
+
+  const valid = await verifyPasswordConstantTime(parsed.data.password, admin?.passwordHash);
+
+  if (!admin || !valid) {
+    if (admin) {
+      await prisma.admin.update({
+        where: { id: admin.id },
+        data: nextFailureState(admin.failedAttempts),
+      });
+    }
     return { error: "Неверный логин или пароль" };
+  }
+
+  if (admin.failedAttempts > 0 || admin.lockedUntil) {
+    await prisma.admin.update({
+      where: { id: admin.id },
+      data: { failedAttempts: 0, lockedUntil: null },
+    });
   }
 
   await createAdminSession(admin.id);

@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { PrismaClient, CategoryGroup } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { hashPassword } from "../src/lib/password";
@@ -30,7 +31,6 @@ async function main() {
   await prisma.vehicle.deleteMany();
   await prisma.category.deleteMany();
   await prisma.owner.deleteMany();
-  await prisma.admin.deleteMany();
   await prisma.buyer.deleteMany();
 
   const categories: Record<string, string> = {};
@@ -156,16 +156,24 @@ async function main() {
     ],
   });
 
-  await prisma.admin.create({
-    data: {
-      login: "admin",
-      passwordHash: await hashPassword("admin12345"),
-      name: "Администратор",
-    },
-  });
+  // Пароль администратора не трогаем при повторном запуске сида —
+  // создаём только если аккаунта ещё нет, со случайным паролем.
+  const existingAdmin = await prisma.admin.findUnique({ where: { login: "admin" } });
+  if (!existingAdmin) {
+    const tempPassword = randomBytes(9).toString("base64url");
+    await prisma.admin.create({
+      data: {
+        login: "admin",
+        passwordHash: await hashPassword(tempPassword),
+        name: "Администратор",
+      },
+    });
+    console.log(`Создан админ: login=admin, пароль=${tempPassword} (смените после входа)`);
+  } else {
+    console.log("Админ уже существует — пароль не менялся.");
+  }
 
   console.log("Сид базы данных завершён.");
-  console.log("Админ: login=admin, пароль=admin12345 (смените после первого входа)");
 }
 
 main()

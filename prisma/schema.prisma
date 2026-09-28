@@ -21,13 +21,16 @@ enum BookingStatus {
 }
 
 model Buyer {
-  id           String    @id @default(cuid())
-  phone        String    @unique
-  passwordHash String
-  name         String?
-  city         String?
-  createdAt    DateTime  @default(now())
-  consentAt    DateTime?
+  id             String    @id @default(cuid())
+  phone          String    @unique
+  passwordHash   String
+  name           String?
+  city           String?
+  organization   String?
+  createdAt      DateTime  @default(now())
+  consentAt      DateTime?
+  failedAttempts Int       @default(0)
+  lockedUntil    DateTime?
 
   bookings Booking[]
 
@@ -35,11 +38,13 @@ model Buyer {
 }
 
 model Admin {
-  id           String   @id @default(cuid())
-  login        String   @unique
-  passwordHash String
-  name         String?
-  createdAt    DateTime @default(now())
+  id             String    @id @default(cuid())
+  login          String    @unique
+  passwordHash   String
+  name           String?
+  createdAt      DateTime  @default(now())
+  failedAttempts Int       @default(0)
+  lockedUntil    DateTime?
 
   @@map("admins")
 }
