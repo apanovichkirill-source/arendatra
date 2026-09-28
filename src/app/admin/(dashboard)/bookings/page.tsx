@@ -20,6 +20,7 @@ export default async function AdminBookingsPage() {
               <th className="px-4 py-3">Транспорт</th>
               <th className="px-4 py-3">Даты</th>
               <th className="px-4 py-3">Контакт</th>
+              <th className="px-4 py-3">Комментарий</th>
               <th className="px-4 py-3">Сумма</th>
               <th className="px-4 py-3">Статус</th>
             </tr>
@@ -34,6 +35,13 @@ export default async function AdminBookingsPage() {
                 <td className="px-4 py-3 text-gray-600">
                   {b.contactName ? `${b.contactName}, ` : ""}
                   {b.contactPhone}
+                </td>
+                <td className="max-w-[240px] px-4 py-3 text-gray-600">
+                  {b.comment ? (
+                    <span className="line-clamp-3 whitespace-pre-line">{b.comment}</span>
+                  ) : (
+                    <span className="text-gray-300">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-gray-600">{formatPrice(b.totalPrice)}</td>
                 <td className="px-4 py-3">
