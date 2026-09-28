@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!owner) return { title: "Владелец не найден" };
   return {
     title: `${owner.name} — транспорт в аренду`,
-    description: owner.description ?? `Транспорт от ${owner.name} на Арендатра.`,
+    description: owner.description ?? `Транспорт от ${owner.name} на Армада.`,
   };
 }
 

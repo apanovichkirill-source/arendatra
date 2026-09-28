@@ -10,7 +10,7 @@ export function Footer() {
         <p className="mt-3">
           Аренда грузоподъёмной, землеройной техники и пассажирского транспорта.
         </p>
-        <p className="mt-4">© {new Date().getFullYear()} Арендатра. Все права защищены.</p>
+        <p className="mt-4">© {new Date().getFullYear()} Армада. Все права защищены.</p>
       </div>
     </footer>
   );
