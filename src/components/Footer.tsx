@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Logo } from "@/components/Logo";
 
 export function Footer() {
@@ -10,7 +11,12 @@ export function Footer() {
         <p className="mt-3">
           Аренда грузоподъёмной, землеройной техники и пассажирского транспорта.
         </p>
-        <p className="mt-4">© {new Date().getFullYear()} Армада. Все права защищены.</p>
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1">
+          <p>© {new Date().getFullYear()} Армада. Все права защищены.</p>
+          <Link href="/privacy" className="text-brand-blue hover:underline">
+            Политика конфиденциальности
+          </Link>
+        </div>
       </div>
     </footer>
   );

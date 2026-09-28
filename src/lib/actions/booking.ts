@@ -17,6 +17,9 @@ const bookingSchema = z
     contactName: z.string().optional(),
     contactPhone: z.string().min(5, "Укажите номер телефона"),
     comment: z.string().optional(),
+    consent: z.literal(true, {
+      message: "Нужно согласие на обработку персональных данных",
+    }),
   })
   .refine((data) => !Number.isNaN(Date.parse(data.startAt)), {
     message: "Некорректная дата начала",
@@ -82,6 +85,7 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
       contactPhone: normalizePhone(parsed.data.contactPhone),
       comment: parsed.data.comment,
       buyerId: session?.buyerId,
+      consentAt: new Date(),
     },
   });
 

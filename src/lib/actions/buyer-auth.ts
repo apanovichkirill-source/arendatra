@@ -12,6 +12,9 @@ const registerSchema = z.object({
   password: z.string().min(6, "Пароль должен быть не короче 6 символов"),
   name: z.string().optional(),
   city: z.string().optional(),
+  consent: z.literal("on", {
+    message: "Нужно согласие на обработку персональных данных",
+  }),
 });
 
 const loginSchema = z.object({
@@ -30,6 +33,7 @@ export async function registerBuyer(
     password: formData.get("password"),
     name: formData.get("name") || undefined,
     city: formData.get("city") || undefined,
+    consent: formData.get("consent") || undefined,
   });
 
   if (!parsed.success) {
@@ -49,6 +53,7 @@ export async function registerBuyer(
       passwordHash: await hashPassword(parsed.data.password),
       name: parsed.data.name,
       city: parsed.data.city,
+      consentAt: new Date(),
     },
   });
 

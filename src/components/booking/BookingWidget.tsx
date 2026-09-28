@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { createBooking } from "@/lib/actions/booking";
 import { diffHours, formatPrice } from "@/lib/format";
 import { AvailabilityCalendar } from "./AvailabilityCalendar";
@@ -36,6 +37,7 @@ export function BookingWidget({
   const [contactName, setContactName] = useState(buyerName ?? "");
   const [contactPhone, setContactPhone] = useState(buyerPhone ?? "");
   const [comment, setComment] = useState("");
+  const [consent, setConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -81,6 +83,10 @@ export function BookingWidget({
       setError(`Минимальный срок аренды — ${effectiveMinHours} ч.`);
       return;
     }
+    if (!consent) {
+      setError("Нужно согласие на обработку персональных данных");
+      return;
+    }
 
     setError(null);
     setSubmitting(true);
@@ -91,6 +97,7 @@ export function BookingWidget({
       contactName: contactName || undefined,
       contactPhone,
       comment: comment || undefined,
+      consent,
     });
     setSubmitting(false);
 
@@ -204,13 +211,28 @@ export function BookingWidget({
         </div>
       </div>
 
+      <label className="mt-4 flex items-start gap-2 text-xs text-gray-600">
+        <input
+          type="checkbox"
+          checked={consent}
+          onChange={(e) => setConsent(e.target.checked)}
+          className="mt-0.5"
+        />
+        <span>
+          Согласен(на) на обработку персональных данных в соответствии с{" "}
+          <Link href="/privacy" target="_blank" className="text-brand-blue hover:underline">
+            политикой конфиденциальности
+          </Link>
+        </span>
+      </label>
+
       {error && (
         <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
       )}
 
       <button
         type="submit"
-        disabled={submitting || !isValidRange}
+        disabled={submitting || !isValidRange || !consent}
         className="mt-4 w-full rounded-lg bg-brand-orange px-4 py-2.5 font-medium text-white transition hover:bg-brand-orange-dark disabled:cursor-not-allowed disabled:opacity-50"
       >
         {submitting ? "Отправляем..." : "Забронировать"}
