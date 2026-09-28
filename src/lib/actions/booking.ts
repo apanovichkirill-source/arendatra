@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getBuyerSession } from "@/lib/session";
 import { normalizePhone, isValidPhone } from "@/lib/format";
 import { hasOverlappingBooking } from "@/lib/vehicles";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const MIN_BOOKING_HOURS = 1;
 const MAX_BOOKING_HOURS = 24 * 30; // не длиннее месяца за одну бронь
@@ -39,6 +40,11 @@ export type CreateBookingResult =
   | { success: false; error: string };
 
 export async function createBooking(input: CreateBookingInput): Promise<CreateBookingResult> {
+  const ip = await getClientIp();
+  if (!(await checkRateLimit(`booking:${ip}`, 10, 60 * 60 * 1000))) {
+    return { success: false, error: "Слишком много заявок. Повторите чуть позже." };
+  }
+
   const parsed = bookingSchema.safeParse(input);
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Проверьте данные формы" };

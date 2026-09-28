@@ -7,6 +7,9 @@ import { hashPassword, verifyPasswordConstantTime } from "@/lib/password";
 import { createBuyerSession, clearBuyerSession } from "@/lib/session";
 import { normalizePhone, isValidPhone } from "@/lib/format";
 import { isLocked, lockedMessage, nextFailureState } from "@/lib/auth-security";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+
+const TOO_MANY_REQUESTS = "Слишком много попыток. Повторите чуть позже.";
 
 // Имя и фамилия из букв (кириллица/латиница), без цифр и никнеймов: минимум два слова
 const REAL_NAME_REGEX =
@@ -49,6 +52,11 @@ export async function registerBuyer(
   _prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
+  const ip = await getClientIp();
+  if (!(await checkRateLimit(`register:${ip}`, 5, 60 * 60 * 1000))) {
+    return { error: TOO_MANY_REQUESTS };
+  }
+
   const parsed = registerSchema.safeParse({
     phone: formData.get("phone"),
     password: formData.get("password"),
@@ -88,6 +96,11 @@ export async function loginBuyer(
   _prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
+  const ip = await getClientIp();
+  if (!(await checkRateLimit(`login-buyer:${ip}`, 15, 15 * 60 * 1000))) {
+    return { error: TOO_MANY_REQUESTS };
+  }
+
   const parsed = loginSchema.safeParse({
     phone: formData.get("phone"),
     password: formData.get("password"),

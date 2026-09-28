@@ -49,6 +49,15 @@ model Admin {
   @@map("admins")
 }
 
+// Лимит запросов по ключу (например "register:1.2.3.4") в скользящем окне времени
+model RateLimit {
+  key         String   @id
+  count       Int      @default(1)
+  windowStart DateTime @default(now())
+
+  @@map("rate_limits")
+}
+
 model Owner {
   id          String   @id @default(cuid())
   name        String

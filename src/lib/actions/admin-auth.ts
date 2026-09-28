@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { verifyPasswordConstantTime } from "@/lib/password";
 import { createAdminSession, clearAdminSession } from "@/lib/session";
 import { isLocked, lockedMessage, nextFailureState } from "@/lib/auth-security";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const loginSchema = z.object({
   login: z.string().min(1, "Введите логин"),
@@ -18,6 +19,11 @@ export async function loginAdmin(
   _prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
+  const ip = await getClientIp();
+  if (!(await checkRateLimit(`login-admin:${ip}`, 15, 15 * 60 * 1000))) {
+    return { error: "Слишком много попыток. Повторите чуть позже." };
+  }
+
   const parsed = loginSchema.safeParse({
     login: formData.get("login"),
     password: formData.get("password"),
