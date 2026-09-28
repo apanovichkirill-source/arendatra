@@ -40,6 +40,12 @@ export default async function AdminDashboardLayout({
           >
             Брони
           </Link>
+          <Link
+            href="/admin/buyers"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue-light hover:text-brand-blue"
+          >
+            Арендаторы
+          </Link>
         </nav>
         <form action={logoutAdmin} className="mt-6">
           <button

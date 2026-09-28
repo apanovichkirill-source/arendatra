@@ -2,18 +2,21 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminOverviewPage() {
-  const [vehicleCount, ownerCount, newBookingsCount, totalBookingsCount] = await Promise.all([
-    prisma.vehicle.count(),
-    prisma.owner.count(),
-    prisma.booking.count({ where: { status: "NEW" } }),
-    prisma.booking.count(),
-  ]);
+  const [vehicleCount, ownerCount, newBookingsCount, totalBookingsCount, buyerCount] =
+    await Promise.all([
+      prisma.vehicle.count(),
+      prisma.owner.count(),
+      prisma.booking.count({ where: { status: "NEW" } }),
+      prisma.booking.count(),
+      prisma.buyer.count(),
+    ]);
 
   const cards = [
     { label: "Транспорта в каталоге", value: vehicleCount, href: "/admin/vehicles" },
     { label: "Владельцев", value: ownerCount, href: "/admin/owners" },
     { label: "Новых броней", value: newBookingsCount, href: "/admin/bookings" },
     { label: "Всего броней", value: totalBookingsCount, href: "/admin/bookings" },
+    { label: "Арендаторов", value: buyerCount, href: "/admin/buyers" },
   ];
 
   return (
