@@ -22,7 +22,7 @@ const OWNERS = [
     description: "Собственный парк грузоподъёмной, землеройной техники и пассажирского транспорта.",
     phone: "+74951234567",
     email: "info@arendatra.ru",
-    city: "Москва",
+    city: "Сыктывкар",
   },
 ];
 
@@ -54,7 +54,7 @@ async function main() {
           "Автокран грузоподъёмностью 25 тонн для монтажных и погрузочных работ. Полноприводное шасси 6х6 — работает вне асфальтированных дорог.",
         pricePerHour: 2700,
         minHours: 8,
-        city: "Москва",
+        city: "Усинск",
         categoryId: categories["avtokran-25t"],
         ownerId: fleet.id,
         attributes: {
@@ -70,7 +70,7 @@ async function main() {
           "Автокран грузоподъёмностью 50 тонн для тяжёлых монтажных работ. Полноприводное шасси 6х6.",
         pricePerHour: 8000,
         minHours: 8,
-        city: "Москва",
+        city: "Ухта",
         categoryId: categories["avtokran-50t"],
         ownerId: fleet.id,
         attributes: {
@@ -83,16 +83,16 @@ async function main() {
         title: "Автовышка (АГП), стрела до 33 м",
         slug: "avtovyshka-agp-strela-do-33m",
         description:
-          "Автогидроподъёмник для высотных работ. Комбинированное шасси, люлька грузоподъёмностью до 300 кг.",
+          "Автогидроподъёмник для высотных работ. Стрела комбинированного типа (телескопическая со шарнирным коленом), люлька грузоподъёмностью до 300 кг.",
         pricePerHour: 2700,
         minHours: 8,
-        city: "Москва",
+        city: "Сыктывкар",
         categoryId: categories["avtovyshka-agp"],
         ownerId: fleet.id,
         attributes: {
           "Грузоподъёмность люльки": "до 300 кг",
           "Длина стрелы": "до 33 м",
-          "Шасси": "комбинированное",
+          "Тип стрелы": "комбинированная",
         },
       },
       {
@@ -102,7 +102,7 @@ async function main() {
           "Гусеничный экскаватор для земляных работ. В наличии узкопленочные и болотные гусеницы, слани для работы на болотистой местности.",
         pricePerHour: 2800,
         minHours: 8,
-        city: "Москва",
+        city: "Печора",
         categoryId: categories["gusenichnyy-ekskavator"],
         ownerId: fleet.id,
         attributes: {
@@ -117,7 +117,7 @@ async function main() {
         description: "Бульдозер для планировки и перемещения грунта.",
         pricePerHour: 2800,
         minHours: 8,
-        city: "Москва",
+        city: "Воркута",
         categoryId: categories["buldozer"],
         ownerId: fleet.id,
         attributes: {
@@ -132,7 +132,7 @@ async function main() {
         description: "Вахтовый автобус повышенной проходимости для перевозки бригад на объекты.",
         pricePerHour: 2550,
         minHours: 4,
-        city: "Москва",
+        city: "Нарьян-Мар",
         categoryId: categories["vahtovyy-avtobus"],
         ownerId: fleet.id,
         attributes: {
@@ -146,7 +146,7 @@ async function main() {
         description: "Легковой транспорт для перевозки сотрудников и гостей объекта.",
         pricePerHour: 1200,
         minHours: 4,
-        city: "Москва",
+        city: "Сыктывкар",
         categoryId: categories["legkovye-ts"],
         ownerId: fleet.id,
         attributes: {

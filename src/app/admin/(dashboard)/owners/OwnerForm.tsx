@@ -1,5 +1,7 @@
 "use client";
 
+import { SERVICE_CITIES } from "@/lib/cities";
+
 export function OwnerForm({
   action,
   initial,
@@ -64,12 +66,17 @@ export function OwnerForm({
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700">Город</label>
-          <input
-            type="text"
+          <select
             name="city"
-            defaultValue={initial?.city ?? "Москва"}
+            defaultValue={initial?.city ?? SERVICE_CITIES[0]}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-          />
+          >
+            {SERVICE_CITIES.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700">Адрес</label>

@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { registerBuyer } from "@/lib/actions/buyer-auth";
 import { ConsentCheckbox } from "@/components/ConsentCheckbox";
+import { SERVICE_CITIES } from "@/lib/cities";
 
 export function RegisterForm() {
   const [state, formAction, pending] = useActionState(registerBuyer, undefined);
@@ -47,13 +48,21 @@ export function RegisterForm() {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-gray-700">Город</label>
-        <input
-          type="text"
+        <select
           name="city"
           required
-          defaultValue="Москва"
+          defaultValue=""
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-        />
+        >
+          <option value="" disabled>
+            Выберите город
+          </option>
+          {SERVICE_CITIES.map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div>

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { getVehicleBySlug, getUpcomingBookings } from "@/lib/vehicles";
 import { getBuyerSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/format";
+import { SITE_URL } from "@/lib/site";
 import { BookingWidget } from "@/components/booking/BookingWidget";
 import { VehicleIcon } from "@/components/catalog/VehicleIcon";
 
@@ -16,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!vehicle) return { title: "Транспорт не найден" };
 
   const description = `${formatPrice(vehicle.pricePerHour)} / час. ${
-    vehicle.description ?? `Аренда: ${vehicle.title} в ${vehicle.city ?? "Москве"}.`
+    vehicle.description ?? `Аренда: ${vehicle.title} в ${vehicle.city ?? "Республике Коми"}.`
   }`;
 
   return {
@@ -43,8 +45,37 @@ export default async function VehiclePage({ params }: Props) {
       ? (vehicle.attributes as Record<string, string>)
       : {};
 
+  const nonce = (await headers()).get("x-nonce") || undefined;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: vehicle.title,
+    description: vehicle.description ?? vehicle.title,
+    url: `${SITE_URL}/vehicle/${vehicle.slug}`,
+    category: vehicle.category.name,
+    brand: { "@type": "Organization", name: vehicle.owner.name },
+    ...(vehicle.pricePerHour
+      ? {
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "RUB",
+            price: vehicle.pricePerHour.toString(),
+            unitText: "HOUR",
+            availability: "https://schema.org/InStock",
+            url: `${SITE_URL}/vehicle/${vehicle.slug}`,
+          },
+        }
+      : {}),
+  };
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
+      <script
+        type="application/ld+json"
+        nonce={nonce}
+         
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <nav className="mb-4 text-sm text-gray-500">
         <Link href="/catalog" className="hover:text-brand-blue">
           Каталог

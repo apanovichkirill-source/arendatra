@@ -45,11 +45,12 @@ export default async function HomePage() {
       <section className="bg-brand-navy">
         <div className="mx-auto max-w-6xl px-4 py-16 text-white">
           <h1 className="max-w-2xl text-3xl font-bold sm:text-4xl">
-            Аренда спецтехники и транспорта для строительных и монтажных работ
+            Аренда спецтехники и транспорта в Республике Коми и НАО
           </h1>
           <p className="mt-4 max-w-xl text-white/80">
             Автокраны, автовышки, экскаваторы, бульдозеры, вахтовые автобусы и легковой
-            транспорт — почасовая аренда с прозрачными тарифами, без предоплаты.
+            транспорт — почасовая аренда с прозрачными тарифами, без предоплаты. Работаем в
+            Сыктывкаре, Ухте, Усинске, Печоре, Воркуте, Нарьян-Маре и других городах региона.
           </p>
 
           <form
@@ -57,18 +58,12 @@ export default async function HomePage() {
             method="get"
             className="mt-8 grid gap-3 rounded-xl bg-white p-4 sm:grid-cols-[1fr_1fr_auto]"
           >
-            <select
-              name="group"
-              defaultValue=""
-              className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900"
-            >
-              <option value="">Любой транспорт</option>
-              {GROUPS.map((g) => (
-                <option key={g.group} value={g.group}>
-                  {g.title}
-                </option>
-              ))}
-            </select>
+            <input
+              type="text"
+              name="q"
+              placeholder="Что ищете? Например, автокран или экскаватор"
+              className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400"
+            />
             <select
               name="city"
               defaultValue=""

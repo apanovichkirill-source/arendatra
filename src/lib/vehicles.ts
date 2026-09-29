@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { SERVICE_CITIES } from "@/lib/cities";
 import type { CategoryGroup, Prisma } from "@prisma/client";
 
 const ACTIVE_BOOKING_STATUSES = ["NEW", "CONFIRMED"] as const;
@@ -83,19 +84,11 @@ export const getOwnerWithVehicles = cache(async (id: string) => {
   });
 });
 
-// список городов меняется редко (только когда меняется парк техники)
-export const getCities = unstable_cache(
-  async () => {
-    const rows = await prisma.vehicle.findMany({
-      where: { isActive: true, city: { not: null } },
-      distinct: ["city"],
-      select: { city: true },
-    });
-    return rows.map((r) => r.city!).filter(Boolean).sort();
-  },
-  ["vehicle-cities"],
-  { revalidate: 300, tags: ["vehicles"] }
-);
+// Города обслуживания фиксированы (зона покрытия компании), а не выводятся
+// из текущего парка — так на сайте всегда виден весь регион присутствия.
+export async function getCities(): Promise<string[]> {
+  return [...SERVICE_CITIES];
+}
 
 // брони, которые перекрываются с ближайшими днями — для отображения занятости в календаре
 export async function getUpcomingBookings(vehicleId: string) {
