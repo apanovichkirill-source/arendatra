@@ -1,3 +1,4 @@
+import { domainToUnicode } from "node:url";
 import nodemailer from "nodemailer";
 import { formatPrice } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
@@ -14,9 +15,6 @@ export type BookingNotice = {
   contactPhone: string;
   comment?: string | null;
 };
-
-const esc = (s: string) =>
-  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 const fmt = (d: Date) =>
   new Intl.DateTimeFormat("ru-RU", {
@@ -41,7 +39,7 @@ export async function notifyNewBooking(b: BookingNotice) {
     ["Телефон", b.contactPhone],
     ["Комментарий", b.comment || "—"],
   ];
-  const adminUrl = `${SITE_URL}/admin/bookings`;
+  const adminUrl = `${domainToUnicode(new URL(SITE_URL).hostname)}/admin/bookings`;
 
   try {
     const port = Number(SMTP_PORT) || 465;
@@ -54,11 +52,14 @@ export async function notifyNewBooking(b: BookingNotice) {
     await transport.sendMail({
       from: `Арендатра <${SMTP_USER}>`,
       to: NOTIFY_EMAIL,
-      subject: `Новая заявка: ${b.vehicleTitle} — ${b.contactPhone}`,
-      text: [...rows.map(([k, v]) => `${k}: ${v}`), "", adminUrl].join("\n"),
-      html: `<table cellpadding="6" style="font-family:Arial,sans-serif;font-size:14px">${rows
-        .map(([k, v]) => `<tr><td style="color:#666">${k}</td><td><b>${esc(v)}</b></td></tr>`)
-        .join("")}</table><p><a href="${adminUrl}">Открыть заявки в админке</a></p>`,
+      subject: `Новая заявка на бронь: ${b.vehicleTitle}`,
+      text: [
+        "Поступила новая заявка на бронирование.",
+        "",
+        ...rows.map(([k, v]) => `${k}: ${v}`),
+        "",
+        `Все заявки: ${adminUrl}`,
+      ].join("\n"),
     });
   } catch (err) {
     console.error("Не удалось отправить уведомление о заявке", err);
