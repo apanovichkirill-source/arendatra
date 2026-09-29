@@ -69,74 +69,48 @@ export default async function HomePage() {
 
   return (
     <div>
-      <section className="relative overflow-hidden bg-brand-navy">
-        <div className="bg-blueprint absolute inset-0" aria-hidden />
-        <div
-          className="absolute -left-32 -top-40 h-96 w-96 rounded-full bg-brand-blue/30 blur-3xl"
-          aria-hidden
-        />
-        <div
-          className="absolute -bottom-40 right-0 h-96 w-96 rounded-full bg-brand-orange/10 blur-3xl"
-          aria-hidden
-        />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 text-white lg:grid-cols-[1.35fr_1fr] lg:py-20">
-          <div className="animate-fade-up">
-            <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-white/80">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-orange" />
-              Коми · НАО
-            </p>
-            <h1 className="max-w-2xl text-3xl font-extrabold leading-tight sm:text-4xl xl:text-[2.7rem]">
-              Аренда спецтехники и транспорта в Республике Коми и НАО
-            </h1>
-            <p className="mt-5 max-w-xl leading-relaxed text-white/75">
-              Автокраны, автовышки, экскаваторы, бульдозеры, вахтовые автобусы и легковой
-              транспорт — почасовая аренда с прозрачными тарифами, без предоплаты. Работаем в
-              Сыктывкаре, Ухте, Усинске, Печоре, Воркуте, Нарьян-Маре и других городах региона.
-            </p>
+      <section className="bg-brand-navy">
+        <div className="mx-auto max-w-6xl px-4 py-16 text-white">
+          <h1 className="max-w-2xl text-3xl font-bold sm:text-4xl">
+            Аренда спецтехники и транспорта в Республике Коми и НАО
+          </h1>
+          <p className="mt-4 max-w-xl text-white/80">
+            Автокраны, автовышки, экскаваторы, бульдозеры, вахтовые автобусы и легковой
+            транспорт — почасовая аренда с прозрачными тарифами, без предоплаты. Работаем в
+            Сыктывкаре, Ухте, Усинске, Печоре, Воркуте, Нарьян-Маре и других городах региона.
+          </p>
 
-            <form
-              action="/catalog"
-              method="get"
-              className="mt-8 grid gap-3 rounded-2xl bg-white p-4 shadow-2xl shadow-black/30 sm:grid-cols-[1fr_1fr_auto]"
+          <form
+            action="/catalog"
+            method="get"
+            className="mt-8 grid gap-3 rounded-xl bg-white p-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]"
+          >
+            <input
+              type="text"
+              name="q"
+              placeholder="Что ищете? Например, автокран или экскаватор"
+              className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400"
+            />
+            <CategoryPicker groups={categoryGroups} />
+            <select
+              name="city"
+              defaultValue=""
+              className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900"
             >
-              <input
-                type="text"
-                name="q"
-                placeholder="Что ищете? Например, автокран или экскаватор"
-                className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 col-span-full"
-              />
-              <CategoryPicker groups={categoryGroups} />
-              <select
-                name="city"
-                defaultValue=""
-                className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900"
-              >
-                <option value="">Любой город</option>
-                {cities.map((city) => (
-                  <option key={city} value={city}>
-                    {city}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="submit"
-                className="rounded-lg bg-brand-orange px-6 py-2.5 font-semibold text-white transition hover:bg-brand-orange-dark"
-              >
-                Найти
-              </button>
-            </form>
-          </div>
-
-          <div className="relative mx-auto hidden aspect-square w-full max-w-sm lg:block" aria-hidden>
-            <div className="absolute inset-0 rounded-full border border-dashed border-white/20" />
-            <div className="absolute inset-6 rounded-full border border-white/10" />
-            <div className="absolute inset-12 rounded-full bg-white shadow-2xl shadow-black/40" />
-            <div className="animate-float-soft absolute inset-0 flex items-center justify-center">
-              <LogoMark className="h-[62%] w-auto" />
-            </div>
-            <span className="absolute right-4 top-10 h-4 w-4 rounded-full bg-brand-orange" />
-            <span className="absolute bottom-10 left-2 h-3 w-3 rounded-full bg-brand-blue" />
-          </div>
+              <option value="">Любой город</option>
+              {cities.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+            <button
+              type="submit"
+              className="rounded-lg bg-brand-orange px-6 py-2.5 font-semibold text-white hover:bg-brand-orange-dark"
+            >
+              Найти
+            </button>
+          </form>
         </div>
       </section>
 
