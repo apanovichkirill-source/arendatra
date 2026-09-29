@@ -2,6 +2,7 @@ export const PERMISSION_SECTIONS = [
   { key: "vehicles", label: "Транспорт", hasEdit: true },
   { key: "owners", label: "Владельцы", hasEdit: true },
   { key: "bookings", label: "Брони", hasEdit: true },
+  { key: "reviews", label: "Отзывы (модерация)", hasEdit: true },
   { key: "buyers", label: "Арендаторы (персональные данные)", hasEdit: false },
   { key: "audit", label: "Журнал аудита", hasEdit: false },
 ] as const;
@@ -13,6 +14,8 @@ export type Permission =
   | "owners.edit"
   | "bookings.view"
   | "bookings.edit"
+  | "reviews.view"
+  | "reviews.edit"
   | "buyers.view"
   | "audit.view";
 

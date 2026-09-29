@@ -8,6 +8,7 @@ const NAV: { href: string; label: string; permission?: Permission; superOnly?: b
   { href: "/admin/vehicles", label: "Транспорт", permission: "vehicles.view" },
   { href: "/admin/owners", label: "Владельцы", permission: "owners.view" },
   { href: "/admin/bookings", label: "Брони", permission: "bookings.view" },
+  { href: "/admin/reviews", label: "Отзывы", permission: "reviews.view" },
   { href: "/admin/buyers", label: "Арендаторы", permission: "buyers.view" },
   { href: "/admin/audit", label: "Журнал аудита", permission: "audit.view" },
   { href: "/admin/admins", label: "Аккаунты", superOnly: true },

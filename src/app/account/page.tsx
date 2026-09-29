@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice, formatDateTime, BOOKING_STATUS_LABELS } from "@/lib/format";
 import { logoutBuyer } from "@/lib/actions/buyer-auth";
 import { GeoCapture } from "@/components/GeoCapture";
+import { ReviewForm } from "@/components/reviews/ReviewForm";
+import { Stars } from "@/components/reviews/Stars";
 
 export const metadata: Metadata = {
   title: "Личный кабинет",
@@ -21,7 +23,7 @@ export default async function AccountPage() {
   const bookings = await prisma.booking.findMany({
     where: { buyerId: buyer.id },
     orderBy: { createdAt: "desc" },
-    include: { vehicle: true },
+    include: { vehicle: true, review: true },
   });
 
   return (
@@ -80,6 +82,24 @@ export default async function AccountPage() {
               {booking.comment && (
                 <p className="mt-2 text-sm text-gray-500">Комментарий: {booking.comment}</p>
               )}
+              {booking.status === "DONE" &&
+                (booking.review ? (
+                  <div className="mt-4 border-t border-black/5 pt-3 text-sm">
+                    <p className="flex items-center gap-2 text-gray-600">
+                      Ваш отзыв: <Stars value={booking.review.rating} />
+                      <span className="text-xs text-gray-400">
+                        {booking.review.status === "PENDING"
+                          ? "на модерации"
+                          : booking.review.status === "APPROVED"
+                            ? "опубликован"
+                            : "отклонён модератором"}
+                      </span>
+                    </p>
+                    <p className="mt-1 whitespace-pre-line text-gray-500">{booking.review.text}</p>
+                  </div>
+                ) : (
+                  <ReviewForm bookingId={booking.id} />
+                ))}
             </div>
           ))}
         </div>

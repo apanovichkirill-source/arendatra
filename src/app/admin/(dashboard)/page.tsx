@@ -5,13 +5,14 @@ import { can, type Permission } from "@/lib/admin-permissions";
 
 export default async function AdminOverviewPage() {
   const admin = await requireAdminUser();
-  const [vehicleCount, ownerCount, newBookingsCount, totalBookingsCount, buyerCount] =
+  const [vehicleCount, ownerCount, newBookingsCount, totalBookingsCount, buyerCount, pendingReviews] =
     await Promise.all([
       prisma.vehicle.count(),
       prisma.owner.count(),
       prisma.booking.count({ where: { status: "NEW" } }),
       prisma.booking.count(),
       prisma.buyer.count(),
+      prisma.review.count({ where: { status: "PENDING" } }),
     ]);
 
   const allCards: { label: string; value: number; href: string; permission: Permission }[] = [
@@ -19,6 +20,7 @@ export default async function AdminOverviewPage() {
     { label: "Владельцев", value: ownerCount, href: "/admin/owners", permission: "owners.view" },
     { label: "Новых броней", value: newBookingsCount, href: "/admin/bookings", permission: "bookings.view" },
     { label: "Всего броней", value: totalBookingsCount, href: "/admin/bookings", permission: "bookings.view" },
+    { label: "Отзывов на модерации", value: pendingReviews, href: "/admin/reviews", permission: "reviews.view" },
     { label: "Арендаторов", value: buyerCount, href: "/admin/buyers", permission: "buyers.view" },
   ];
   const cards = allCards.filter((c) => can(admin, c.permission));

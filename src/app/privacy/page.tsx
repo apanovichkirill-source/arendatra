@@ -107,7 +107,16 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="mb-2 font-semibold text-brand-navy">7. Файлы cookie</h2>
+          <h2 className="mb-2 font-semibold text-brand-navy">7. Отзывы</h2>
+          <p>
+            Если вы оставляете отзыв о технике, после проверки модератором он публикуется на
+            странице этой техники с вашим именем (без фамилии и телефона), оценкой и датой.
+            Вы можете обратиться к нам с просьбой удалить свой отзыв.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-2 font-semibold text-brand-navy">8. Файлы cookie</h2>
           <p>
             Сайт использует технически необходимые cookie для авторизации в личном кабинете
             и админ-панели. После вашего согласия в баннере cookie на сайте также включается
@@ -120,7 +129,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="mb-2 font-semibold text-brand-navy">8. Изменения Политики</h2>
+          <h2 className="mb-2 font-semibold text-brand-navy">9. Изменения Политики</h2>
           <p>
             Оператор вправе обновлять Политику. Актуальная редакция всегда доступна на этой
             странице.

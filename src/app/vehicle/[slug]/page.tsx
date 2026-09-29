@@ -9,6 +9,8 @@ import { formatPrice } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
 import { BookingWidget } from "@/components/booking/BookingWidget";
 import { VehicleIcon } from "@/components/catalog/VehicleIcon";
+import { ReviewsSection } from "@/components/reviews/ReviewsSection";
+import { getVehicleReviews } from "@/lib/reviews";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -34,9 +36,10 @@ export default async function VehiclePage({ params }: Props) {
   const vehicle = await getVehicleBySlug(slug);
   if (!vehicle || !vehicle.isActive) notFound();
 
-  const [bookings, session] = await Promise.all([
+  const [bookings, session, reviewData] = await Promise.all([
     getUpcomingBookings(vehicle.id),
     getBuyerSession(),
+    getVehicleReviews(vehicle.id),
   ]);
 
   const buyer = session ? await prisma.buyer.findUnique({ where: { id: session.buyerId } }) : null;
@@ -67,6 +70,24 @@ export default async function VehiclePage({ params }: Props) {
           },
         }
       : {}),
+    ...(reviewData.count > 0 && reviewData.average !== null
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: reviewData.average,
+            reviewCount: reviewData.count,
+            bestRating: 5,
+            worstRating: 1,
+          },
+          review: reviewData.reviews.slice(0, 10).map((r) => ({
+            "@type": "Review",
+            author: { "@type": "Person", name: r.authorName },
+            datePublished: r.createdAt.toISOString().slice(0, 10),
+            reviewBody: r.text,
+            reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+          })),
+        }
+      : {}),
   };
 
   return (
@@ -75,7 +96,7 @@ export default async function VehiclePage({ params }: Props) {
         type="application/ld+json"
         nonce={nonce}
          
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
       <nav className="mb-4 text-sm text-gray-500">
         <Link href="/catalog" className="hover:text-brand-blue">
@@ -116,6 +137,12 @@ export default async function VehiclePage({ params }: Props) {
               </dl>
             </div>
           )}
+
+          <ReviewsSection
+            reviews={reviewData.reviews}
+            count={reviewData.count}
+            average={reviewData.average}
+          />
 
           <Link
             href={`/owner/${vehicle.owner.id}`}
