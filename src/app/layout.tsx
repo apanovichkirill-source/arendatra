@@ -18,13 +18,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Армада — аренда спецтехники и транспорта",
+  title: "Арендатра — аренда спецтехники и транспорта",
   description:
     "Аренда автокранов, автовышек, экскаваторов, бульдозеров, вахтовых автобусов и легкового транспорта. Почасовые тарифы, бронирование без предоплаты.",
   openGraph: {
     type: "website",
     locale: "ru_RU",
-    siteName: "Армада",
+    siteName: "Арендатра",
   },
 };
 

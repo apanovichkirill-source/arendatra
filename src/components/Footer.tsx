@@ -12,7 +12,7 @@ export function Footer() {
           Аренда грузоподъёмной, землеройной техники и пассажирского транспорта.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1">
-          <p>© {new Date().getFullYear()} Армада. Все права защищены.</p>
+          <p>© {new Date().getFullYear()} Арендатра. Все права защищены.</p>
           <Link href="/privacy" className="text-brand-blue hover:underline">
             Политика конфиденциальности
           </Link>

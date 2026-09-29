@@ -19,7 +19,7 @@ export function Logo({ className = "" }: { className?: string }) {
       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white p-1">
         <LogoMark className="h-full w-full" />
       </span>
-      <span className="text-xl font-bold">Армада</span>
+      <span className="text-xl font-bold">Арендатра</span>
     </span>
   );
 }

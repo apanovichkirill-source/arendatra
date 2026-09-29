@@ -18,10 +18,10 @@ const CATEGORIES: { group: CategoryGroup; name: string; slug: string; sortOrder:
 
 const OWNERS = [
   {
-    name: "Армада",
+    name: "Арендатра",
     description: "Собственный парк грузоподъёмной, землеройной техники и пассажирского транспорта.",
     phone: "+74951234567",
-    email: "info@armada.ru",
+    email: "info@arendatra.ru",
     city: "Москва",
   },
 ];
