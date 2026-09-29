@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { SITE_URL } from "@/lib/site";
 import { getLandingCombos, landingPath } from "@/lib/landing";
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [combos, vehicles, owners] = await Promise.all([
     getLandingCombos(),

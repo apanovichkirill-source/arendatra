@@ -1,0 +1,8 @@
+xn----7sbabaug8dekkefemmh.xn--p1ai {
+	encode zstd gzip
+	reverse_proxy app:3000
+}
+
+xn--80aaaarf0ddjjeeellh.xn--p1ai {
+	redir https://xn----7sbabaug8dekkefemmh.xn--p1ai{uri} permanent
+}
