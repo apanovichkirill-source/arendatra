@@ -9,7 +9,7 @@ const MAX_AGE_SECONDS = 60 * 60 * 24 * 30; // 30 дней — обычные п�
 const ADMIN_MAX_AGE_SECONDS = 60 * 60 * 8; // 8 часов — админка, короче для безопасности
 
 type BuyerPayload = { buyerId: string };
-type AdminPayload = { adminId: string };
+type AdminPayload = { adminId: string; iat?: number };
 
 async function sign(payload: Record<string, unknown>, maxAgeSeconds: number) {
   return new SignJWT(payload)

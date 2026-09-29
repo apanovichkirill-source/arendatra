@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/admin-access";
+import { can } from "@/lib/admin-permissions";
 import { DeleteButton } from "../DeleteButton";
 import { deleteOwner } from "@/lib/actions/admin-catalog";
 
 export default async function AdminOwnersPage() {
+  const admin = await requirePermission("owners.view");
+  const canEdit = can(admin, "owners.edit");
   const owners = await prisma.owner.findMany({
     include: { _count: { select: { vehicles: true } } },
     orderBy: { createdAt: "desc" },
@@ -13,12 +17,14 @@ export default async function AdminOwnersPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-brand-navy">Владельцы</h1>
-        <Link
-          href="/admin/owners/new"
-          className="rounded-lg bg-brand-orange px-4 py-2 text-sm font-medium text-white hover:bg-brand-orange-dark"
-        >
-          + Добавить владельца
-        </Link>
+        {canEdit && (
+          <Link
+            href="/admin/owners/new"
+            className="rounded-lg bg-brand-orange px-4 py-2 text-sm font-medium text-white hover:bg-brand-orange-dark"
+          >
+            + Добавить владельца
+          </Link>
+        )}
       </div>
 
       <div className="overflow-hidden rounded-xl border border-black/10 bg-white">
@@ -42,15 +48,17 @@ export default async function AdminOwnersPage() {
                 <td className="px-4 py-3 text-gray-600">{o._count.vehicles}</td>
                 <td className="px-4 py-3">{o.isActive ? "Да" : "Нет"}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <Link
-                      href={`/admin/owners/${o.id}`}
-                      className="font-medium text-brand-blue hover:underline"
-                    >
-                      Изменить
-                    </Link>
-                    <DeleteButton action={deleteOwner.bind(null, o.id)} />
-                  </div>
+                  {canEdit && (
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={`/admin/owners/${o.id}`}
+                        className="font-medium text-brand-blue hover:underline"
+                      >
+                        Изменить
+                      </Link>
+                      <DeleteButton action={deleteOwner.bind(null, o.id)} />
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}

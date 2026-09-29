@@ -49,8 +49,32 @@ model Admin {
   createdAt      DateTime  @default(now())
   failedAttempts Int       @default(0)
   lockedUntil    DateTime?
+  // главный администратор: полный доступ, управляет остальными аккаунтами
+  isSuper        Boolean   @default(false)
+  isActive       Boolean   @default(true)
+  // ключи прав, например "vehicles.view", "vehicles.edit" (см. src/lib/admin-permissions.ts)
+  permissions    String[]  @default([])
+  // сессии, выданные раньше этой даты, недействительны (смена/сброс пароля)
+  passwordChangedAt DateTime?
 
   @@map("admins")
+}
+
+// Журнал аудита. adminId без внешнего ключа: записи остаются после удаления аккаунта.
+model AuditLog {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  adminId    String?
+  adminLogin String
+  action     String
+  entityType String?
+  entityId   String?
+  details    String?
+  ip         String?
+
+  @@map("audit_logs")
+  @@index([createdAt])
+  @@index([adminId])
 }
 
 // Лимит запросов по ключу (например "register:1.2.3.4") в скользящем окне времени

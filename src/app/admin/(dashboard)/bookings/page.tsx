@@ -1,10 +1,14 @@
 import { prisma } from "@/lib/prisma";
-import { formatDateTime, formatPrice } from "@/lib/format";
+import { requirePermission } from "@/lib/admin-access";
+import { can } from "@/lib/admin-permissions";
+import { BOOKING_STATUS_LABELS, formatDateTime, formatPrice } from "@/lib/format";
 import { mapLink } from "@/lib/geo";
 import { updateBookingStatus } from "@/lib/actions/admin-catalog";
 import { BookingStatusSelect } from "./BookingStatusSelect";
 
 export default async function AdminBookingsPage() {
+  const admin = await requirePermission("bookings.view");
+  const canEdit = can(admin, "bookings.edit");
   const bookings = await prisma.booking.findMany({
     include: { vehicle: true },
     orderBy: { createdAt: "desc" },
@@ -61,11 +65,15 @@ export default async function AdminBookingsPage() {
                 </td>
                 <td className="px-4 py-3 text-gray-600">{formatPrice(b.totalPrice)}</td>
                 <td className="px-4 py-3">
-                  <BookingStatusSelect
-                    bookingId={b.id}
-                    status={b.status}
-                    action={updateBookingStatus}
-                  />
+                  {canEdit ? (
+                    <BookingStatusSelect
+                      bookingId={b.id}
+                      status={b.status}
+                      action={updateBookingStatus}
+                    />
+                  ) : (
+                    BOOKING_STATUS_LABELS[b.status]
+                  )}
                 </td>
               </tr>
             ))}

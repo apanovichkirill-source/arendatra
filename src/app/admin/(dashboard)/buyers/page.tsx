@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/admin-access";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { mapLink } from "@/lib/geo";
 
 export default async function AdminBuyersPage() {
+  await requirePermission("buyers.view");
   const buyers = await prisma.buyer.findMany({
     include: { _count: { select: { bookings: true } } },
     orderBy: { createdAt: "desc" },

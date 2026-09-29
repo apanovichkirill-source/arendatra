@@ -5,8 +5,16 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { verifyPasswordConstantTime } from "@/lib/password";
 import { createAdminSession, clearAdminSession } from "@/lib/session";
-import { isLocked, lockedMessage, nextFailureState } from "@/lib/auth-security";
+import {
+  isLocked,
+  lockedMessage,
+  nextFailureState,
+  LOCKOUT_MINUTES,
+  MAX_LOGIN_ATTEMPTS,
+} from "@/lib/auth-security";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { logAudit } from "@/lib/audit";
+import { getCurrentAdmin } from "@/lib/admin-access";
 
 const loginSchema = z.object({
   login: z.string().min(1, "Введите логин"),
@@ -41,11 +49,22 @@ export async function loginAdmin(
 
   const valid = await verifyPasswordConstantTime(parsed.data.password, admin?.passwordHash);
 
-  if (!admin || !valid) {
+  if (!admin || !valid || !admin.isActive) {
     if (admin) {
-      await prisma.admin.update({
-        where: { id: admin.id },
-        data: nextFailureState(admin.failedAttempts),
+      const failure = nextFailureState(admin.failedAttempts);
+      await prisma.admin.update({ where: { id: admin.id }, data: failure });
+      await logAudit(admin, "admin.login_failed", {
+        details: admin.isActive && !valid ? "Неверный пароль" : "Аккаунт отключён",
+      });
+      if (failure.lockedUntil) {
+        await logAudit(admin, "admin.locked", {
+          details: `Заблокирован на ${LOCKOUT_MINUTES} мин. после ${MAX_LOGIN_ATTEMPTS} неудачных попыток`,
+        });
+      }
+    } else {
+      // введённый логин не записываем: в это поле часто по ошибке попадает пароль
+      await logAudit(null, "admin.login_failed", {
+        loginOverride: "(неизвестный логин)",
       });
     }
     return { error: "Неверный логин или пароль" };
@@ -59,10 +78,13 @@ export async function loginAdmin(
   }
 
   await createAdminSession(admin.id);
+  await logAudit(admin, "admin.login");
   redirect("/admin");
 }
 
 export async function logoutAdmin() {
+  const admin = await getCurrentAdmin();
+  if (admin) await logAudit(admin, "admin.logout");
   await clearAdminSession();
   redirect("/admin/login");
 }

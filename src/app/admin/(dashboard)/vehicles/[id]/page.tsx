@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/admin-access";
 import { updateVehicle } from "@/lib/actions/admin-catalog";
 import { VehicleForm } from "../VehicleForm";
 
@@ -8,6 +9,7 @@ export default async function EditVehiclePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requirePermission("vehicles.edit");
   const { id } = await params;
   const [vehicle, categories, owners] = await Promise.all([
     prisma.vehicle.findUnique({ where: { id } }),

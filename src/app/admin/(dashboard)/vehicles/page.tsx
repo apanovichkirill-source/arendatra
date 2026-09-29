@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/admin-access";
+import { can } from "@/lib/admin-permissions";
 import { formatPrice } from "@/lib/format";
 import { DeleteButton } from "../DeleteButton";
 import { deleteVehicle } from "@/lib/actions/admin-catalog";
 
 export default async function AdminVehiclesPage() {
+  const admin = await requirePermission("vehicles.view");
+  const canEdit = can(admin, "vehicles.edit");
   const vehicles = await prisma.vehicle.findMany({
     include: { category: true, owner: true },
     orderBy: { createdAt: "desc" },
@@ -14,12 +18,14 @@ export default async function AdminVehiclesPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-brand-navy">Транспорт</h1>
-        <Link
-          href="/admin/vehicles/new"
-          className="rounded-lg bg-brand-orange px-4 py-2 text-sm font-medium text-white hover:bg-brand-orange-dark"
-        >
-          + Добавить транспорт
-        </Link>
+        {canEdit && (
+          <Link
+            href="/admin/vehicles/new"
+            className="rounded-lg bg-brand-orange px-4 py-2 text-sm font-medium text-white hover:bg-brand-orange-dark"
+          >
+            + Добавить транспорт
+          </Link>
+        )}
       </div>
 
       <div className="overflow-hidden rounded-xl border border-black/10 bg-white">
@@ -45,15 +51,17 @@ export default async function AdminVehiclesPage() {
                 </td>
                 <td className="px-4 py-3">{v.isActive ? "Да" : "Нет"}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <Link
-                      href={`/admin/vehicles/${v.id}`}
-                      className="font-medium text-brand-blue hover:underline"
-                    >
-                      Изменить
-                    </Link>
-                    <DeleteButton action={deleteVehicle.bind(null, v.id)} />
-                  </div>
+                  {canEdit && (
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={`/admin/vehicles/${v.id}`}
+                        className="font-medium text-brand-blue hover:underline"
+                      >
+                        Изменить
+                      </Link>
+                      <DeleteButton action={deleteVehicle.bind(null, v.id)} />
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}
