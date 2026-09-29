@@ -36,13 +36,12 @@ export default async function VehiclePage({ params }: Props) {
   const vehicle = await getVehicleBySlug(slug);
   if (!vehicle || !vehicle.isActive) notFound();
 
-  const [bookings, session, reviewData] = await Promise.all([
+  const session = await getBuyerSession();
+  const [bookings, reviewData, buyer] = await Promise.all([
     getUpcomingBookings(vehicle.id),
-    getBuyerSession(),
     getVehicleReviews(vehicle.id),
+    session ? prisma.buyer.findUnique({ where: { id: session.buyerId } }) : null,
   ]);
-
-  const buyer = session ? await prisma.buyer.findUnique({ where: { id: session.buyerId } }) : null;
 
   const attributes =
     vehicle.attributes && typeof vehicle.attributes === "object"

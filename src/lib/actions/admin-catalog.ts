@@ -68,6 +68,7 @@ export async function createOwner(formData: FormData) {
     details: owner.name,
   });
   revalidatePath("/admin/owners");
+  revalidateTag("vehicles", { expire: 0 });
   redirect("/admin/owners");
 }
 
@@ -85,6 +86,7 @@ export async function updateOwner(id: string, formData: FormData) {
     }`,
   });
   revalidatePath("/admin/owners");
+  revalidateTag("vehicles", { expire: 0 });
   redirect("/admin/owners");
 }
 
@@ -98,6 +100,7 @@ export async function deleteOwner(id: string) {
     details: before?.name,
   });
   revalidatePath("/admin/owners");
+  revalidateTag("vehicles", { expire: 0 });
 }
 
 const vehicleSchema = z.object({

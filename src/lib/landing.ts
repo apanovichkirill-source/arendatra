@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCategories, getVehicles } from "@/lib/vehicles";
 import { CATEGORY_LANDING } from "@/lib/seo";
@@ -6,7 +7,12 @@ import { formatPrice } from "@/lib/format";
 
 export type ServiceCity = (typeof SERVICE_CITIES)[number];
 
-export async function getLandingCombos() {
+export const getLandingCombos = unstable_cache(loadLandingCombos, ["landing-combos"], {
+  revalidate: 600,
+  tags: ["vehicles"],
+});
+
+async function loadLandingCombos() {
   const rows = await prisma.vehicle.findMany({
     where: { isActive: true },
     select: { city: true, category: { select: { slug: true } } },

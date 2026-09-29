@@ -16,7 +16,7 @@ export async function Header() {
     <header className="sticky top-0 z-40 border-b border-black/5 bg-white/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2.5">
         <Link href="/" aria-label="Арендатра — на главную">
-          <Logo />
+          <Logo priority />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">

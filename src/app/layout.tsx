@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Montserrat } from "next/font/google";
+import { Geist, Montserrat } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import { Header } from "@/components/Header";
@@ -20,12 +20,7 @@ const geistSans = Geist({
 const display = Montserrat({
   variable: "--font-display",
   subsets: ["latin", "cyrillic"],
-  weight: ["600", "700", "800"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin", "cyrillic"],
+  weight: ["700", "800"],
 });
 
 const DESCRIPTION =
@@ -67,7 +62,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ru"
-      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${display.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <script

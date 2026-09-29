@@ -27,7 +27,7 @@ export type VehicleFilters = {
   endAt?: Date;
 };
 
-export async function getVehicles(filters: VehicleFilters = {}) {
+async function queryVehicles(filters: VehicleFilters) {
   const where: Prisma.VehicleWhereInput = {
     isActive: true,
   };
@@ -73,14 +73,29 @@ export async function getVehicles(filters: VehicleFilters = {}) {
   });
 }
 
+// Список без фильтра по датам не зависит от броней — кэшируем между запросами.
+// Сброс: revalidateTag("vehicles") в админских действиях + страховочные 10 минут.
+export async function getVehicles(filters: VehicleFilters = {}) {
+  if (filters.startAt || filters.endAt) return queryVehicles(filters);
+  return unstable_cache(() => queryVehicles(filters), ["vehicles-list", JSON.stringify(filters)], {
+    revalidate: 600,
+    tags: ["vehicles"],
+  })();
+}
+
 // cache(): в рамках одного рендера страница и generateMetadata
 // используют один и тот же запрос вместо двух одинаковых
-export const getVehicleBySlug = cache(async (slug: string) => {
-  return prisma.vehicle.findUnique({
-    where: { slug },
-    include: { category: true, owner: true },
-  });
-});
+export const getVehicleBySlug = cache((slug: string) =>
+  unstable_cache(
+    () =>
+      prisma.vehicle.findUnique({
+        where: { slug },
+        include: { category: true, owner: true },
+      }),
+    ["vehicle-by-slug", slug],
+    { revalidate: 600, tags: ["vehicles"] }
+  )()
+);
 
 export const getOwnerWithVehicles = cache(async (id: string) => {
   return prisma.owner.findUnique({

@@ -1,8 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  images: {
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
+  },
   async headers() {
     return [
+      {
+        source: "/:file(logo-mark|logo-icon|logo-full).png",
+        headers: [{ key: "Cache-Control", value: "public, max-age=2592000" }],
+      },
       {
         source: "/:path*",
         headers: [
