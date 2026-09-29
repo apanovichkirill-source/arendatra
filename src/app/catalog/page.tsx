@@ -2,13 +2,8 @@ import type { Metadata } from "next";
 import { getCategories, getCities, getVehicles } from "@/lib/vehicles";
 import { VehicleCard } from "@/components/catalog/VehicleCard";
 import { CATEGORY_GROUP_LABELS } from "@/lib/format";
+import { GROUP_SEO, CATEGORY_SEO } from "@/lib/seo";
 import type { CategoryGroup } from "@prisma/client";
-
-export const metadata: Metadata = {
-  title: "Каталог техники в аренду",
-  description:
-    "Автокраны, автовышки, экскаваторы, бульдозеры, вахтовые автобусы и легковой транспорт. Фильтры по датам, городу и цене.",
-};
 
 type SearchParams = {
   group?: string;
@@ -21,6 +16,36 @@ type SearchParams = {
   end?: string;
 };
 
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}): Promise<Metadata> {
+  const sp = await searchParams;
+
+  const seo =
+    (sp.category && CATEGORY_SEO[sp.category]) ||
+    (sp.group && GROUP_SEO[sp.group as CategoryGroup]) ||
+    null;
+
+  if (seo) {
+    return { title: seo.title, description: seo.description, keywords: seo.keywords };
+  }
+
+  return {
+    title: "Каталог техники в аренду",
+    description:
+      "Автокраны, автовышки, экскаваторы, бульдозеры, вахтовые автобусы и легковой транспорт в Республике Коми и НАО. Фильтры по датам, городу и цене.",
+    keywords: [
+      "аренда спецтехники Коми",
+      "аренда спецтехники НАО",
+      "аренда автокрана",
+      "аренда экскаватора",
+      "аренда вахтового автобуса",
+    ],
+  };
+}
+
 export default async function CatalogPage({
   searchParams,
 }: {
@@ -28,6 +53,11 @@ export default async function CatalogPage({
 }) {
   const sp = await searchParams;
   const group = (sp.group as CategoryGroup) || undefined;
+
+  const pageTitle =
+    (sp.category && CATEGORY_SEO[sp.category]?.title) ||
+    (sp.group && GROUP_SEO[sp.group as CategoryGroup]?.title) ||
+    "Каталог";
 
   const startAt = sp.start ? new Date(`${sp.start}T00:00:00`) : undefined;
   const endAt = sp.end ? new Date(`${sp.end}T23:59:59`) : undefined;
@@ -52,7 +82,7 @@ export default async function CatalogPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold text-brand-navy">Каталог</h1>
+      <h1 className="mb-6 text-2xl font-bold text-brand-navy">{pageTitle}</h1>
 
       <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
         <aside className="h-fit rounded-xl border border-black/10 bg-white p-4">

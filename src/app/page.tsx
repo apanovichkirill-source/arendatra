@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { getVehicles, getCities } from "@/lib/vehicles";
+import { getVehicles, getCities, getCategories } from "@/lib/vehicles";
 import { VehicleCard } from "@/components/catalog/VehicleCard";
+import { CategoryPicker } from "@/components/catalog/CategoryPicker";
 import { PRICING_NOTE } from "@/lib/format";
 
 const GROUPS = [
@@ -37,8 +38,18 @@ const STEPS = [
 ];
 
 export default async function HomePage() {
-  const [vehicles, cities] = await Promise.all([getVehicles(), getCities()]);
+  const [vehicles, cities, categories] = await Promise.all([
+    getVehicles(),
+    getCities(),
+    getCategories(),
+  ]);
   const featured = vehicles.slice(0, 6);
+  const categoryGroups = GROUPS.map((g) => ({
+    group: g.group,
+    categories: categories
+      .filter((c) => c.group === g.group)
+      .map((c) => ({ slug: c.slug, name: c.name })),
+  }));
 
   return (
     <div>
@@ -56,7 +67,7 @@ export default async function HomePage() {
           <form
             action="/catalog"
             method="get"
-            className="mt-8 grid gap-3 rounded-xl bg-white p-4 sm:grid-cols-[1fr_1fr_auto]"
+            className="mt-8 grid gap-3 rounded-xl bg-white p-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]"
           >
             <input
               type="text"
@@ -64,6 +75,7 @@ export default async function HomePage() {
               placeholder="Что ищете? Например, автокран или экскаватор"
               className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400"
             />
+            <CategoryPicker groups={categoryGroups} />
             <select
               name="city"
               defaultValue=""

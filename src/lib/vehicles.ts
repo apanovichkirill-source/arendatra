@@ -49,7 +49,12 @@ export async function getVehicles(filters: VehicleFilters = {}) {
   }
 
   if (filters.query) {
-    where.title = { contains: filters.query, mode: "insensitive" };
+    const q = filters.query.trim();
+    where.OR = [
+      { title: { contains: q, mode: "insensitive" } },
+      { description: { contains: q, mode: "insensitive" } },
+      { category: { name: { contains: q, mode: "insensitive" } } },
+    ];
   }
 
   if (filters.startAt && filters.endAt) {
