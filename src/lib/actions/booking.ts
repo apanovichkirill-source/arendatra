@@ -1,11 +1,13 @@
 "use server";
 
+import { after } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getBuyerSession } from "@/lib/session";
 import { normalizePhone, isValidPhone } from "@/lib/format";
 import { hasOverlappingBooking } from "@/lib/vehicles";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { notifyNewBooking } from "@/lib/notify";
 
 const MIN_BOOKING_HOURS = 1;
 const MAX_BOOKING_HOURS = 24 * 30; // не длиннее месяца за одну бронь
@@ -51,7 +53,10 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
     return { success: false, error: parsed.error.issues[0]?.message ?? "Проверьте данные формы" };
   }
 
-  const vehicle = await prisma.vehicle.findUnique({ where: { id: parsed.data.vehicleId } });
+  const vehicle = await prisma.vehicle.findUnique({
+    where: { id: parsed.data.vehicleId },
+    include: { owner: { select: { name: true } } },
+  });
   if (!vehicle || !vehicle.isActive) {
     return { success: false, error: "Этот транспорт больше недоступен" };
   }
@@ -108,6 +113,21 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
       geoLng: hasFreshGeo ? buyer?.lastLng : null,
     },
   });
+
+  after(() =>
+    notifyNewBooking({
+      id: booking.id,
+      vehicleTitle: vehicle.title,
+      city: vehicle.city,
+      ownerName: vehicle.owner.name,
+      startAt,
+      endAt,
+      totalPrice,
+      contactName: booking.contactName,
+      contactPhone: booking.contactPhone,
+      comment: booking.comment,
+    })
+  );
 
   return { success: true, bookingId: booking.id };
 }

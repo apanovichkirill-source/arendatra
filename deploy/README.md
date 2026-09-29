@@ -38,6 +38,8 @@ AUTH_SECRET=$(openssl rand -hex 32)
 EOT
 ```
 
+Для уведомлений о заявках добавьте в `.env` строки `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `NOTIFY_EMAIL` (те же значения, что в Vercel).
+
 (Если репозиторий приватный — создайте на сервере ключ `ssh-keygen -t ed25519`, добавьте `~/.ssh/id_ed25519.pub` в GitHub → репозиторий → Settings → Deploy keys и клонируйте по адресу `git@github.com:apanovichkirill-source/arendatra.git`.)
 
 ## 4. Запуск базы и перенос данных
