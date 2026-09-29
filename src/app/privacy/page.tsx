@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PageHero } from "@/components/PageHero";
 
 export const metadata: Metadata = {
   title: "Политика конфиденциальности",
@@ -7,13 +8,12 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="text-2xl font-bold text-brand-navy">
-        Политика конфиденциальности и обработки персональных данных
-      </h1>
-      <p className="mt-2 text-sm text-gray-500">Действует с 1 января 2026 года · редакция от 29 сентября 2026 года</p>
-
-      <div className="mt-8 flex flex-col gap-6 text-sm leading-relaxed text-gray-700">
+    <>
+      <PageHero title="Политика конфиденциальности и обработки персональных данных" eyebrow="Документы" compact>
+        <p className="mt-3 text-sm text-white/60">Действует с 1 января 2026 года · редакция от 29 сентября 2026 года</p>
+      </PageHero>
+      <div className="mx-auto max-w-3xl px-4 py-10">
+      <div className="flex flex-col gap-6 text-sm leading-relaxed text-gray-700">
         <section>
           <h2 className="mb-2 font-semibold text-brand-navy">1. Общие положения</h2>
           <p>
@@ -136,6 +136,7 @@ export default function PrivacyPage() {
           </p>
         </section>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

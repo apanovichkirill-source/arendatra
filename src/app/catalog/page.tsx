@@ -4,6 +4,7 @@ import { VehicleCard } from "@/components/catalog/VehicleCard";
 import { CATEGORY_GROUP_LABELS } from "@/lib/format";
 import { GROUP_SEO, CATEGORY_SEO } from "@/lib/seo";
 import type { CategoryGroup } from "@prisma/client";
+import { PageHero } from "@/components/PageHero";
 
 type SearchParams = {
   group?: string;
@@ -94,8 +95,9 @@ export default async function CatalogPage({
   const groupedCategories = categories.filter((c) => !group || c.group === group);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold text-brand-navy">{pageTitle}</h1>
+    <>
+      <PageHero title={pageTitle} eyebrow="Каталог" compact />
+      <div className="mx-auto max-w-6xl px-4 py-8">
 
       <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
         <aside className="h-fit rounded-xl border border-black/10 bg-white p-4">
@@ -259,6 +261,7 @@ export default async function CatalogPage({
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

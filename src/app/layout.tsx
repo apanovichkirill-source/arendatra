@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import { Header } from "@/components/Header";
@@ -15,6 +15,12 @@ import { SERVICE_CITIES } from "@/lib/cities";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin", "cyrillic"],
+});
+
+const display = Montserrat({
+  variable: "--font-display",
+  subsets: ["latin", "cyrillic"],
+  weight: ["600", "700", "800"],
 });
 
 const geistMono = Geist_Mono({
@@ -35,6 +41,7 @@ export const metadata: Metadata = {
     siteName: "Арендатра",
     description: DESCRIPTION,
   },
+  twitter: { card: "summary_large_image" },
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
@@ -47,6 +54,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     name: "Арендатра",
     description: DESCRIPTION,
     url: SITE_URL,
+    logo: `${SITE_URL}/logo-icon.png`,
+    image: `${SITE_URL}/opengraph-image.png`,
     telephone: "+7-495-123-45-67",
     priceRange: "₽₽",
     areaServed: SERVICE_CITIES.map((city) => ({
@@ -58,7 +67,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ru"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${display.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <script

@@ -1,28 +1,42 @@
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
+import { Logo, LogoMark } from "@/components/Logo";
 import { CATEGORY_SEO } from "@/lib/seo";
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-black/10 bg-white">
-      <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-gray-500">
-        <div className="text-brand-navy">
-          <Logo />
+    <footer className="relative mt-16 overflow-hidden bg-brand-navy text-white/70">
+      <div className="bg-blueprint absolute inset-0" aria-hidden />
+      <LogoMark
+        silhouette
+        className="pointer-events-none absolute -bottom-10 -right-4 h-[120%] w-auto opacity-[0.06]"
+      />
+      <div className="relative mx-auto max-w-6xl px-4 py-12 text-sm">
+        <div className="grid gap-10 md:grid-cols-[1.2fr_1fr]">
+          <div>
+            <Logo onDark />
+            <p className="mt-4 max-w-md leading-relaxed">
+              Аренда грузоподъёмной, землеройной техники и пассажирского транспорта в
+              Республике Коми и Ненецком автономном округе.
+            </p>
+          </div>
+          <nav aria-label="Виды техники">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">
+              Техника в аренду
+            </p>
+            <ul className="grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+              {Object.entries(CATEGORY_SEO).map(([slug, seo]) => (
+                <li key={slug}>
+                  <Link href={`/arenda/${slug}`} className="transition hover:text-white">
+                    {seo.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
-        <p className="mt-3">
-          Аренда грузоподъёмной, землеройной техники и пассажирского транспорта в Республике
-          Коми и Ненецком автономном округе.
-        </p>
-        <nav aria-label="Виды техники" className="mt-4 flex flex-wrap gap-x-4 gap-y-1">
-          {Object.entries(CATEGORY_SEO).map(([slug, seo]) => (
-            <Link key={slug} href={`/arenda/${slug}`} className="hover:text-brand-blue">
-              {seo.title}
-            </Link>
-          ))}
-        </nav>
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1">
+        <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/10 pt-6">
           <p>© {new Date().getFullYear()} Арендатра. Все права защищены.</p>
-          <Link href="/privacy" className="text-brand-blue hover:underline">
+          <Link href="/privacy" className="text-white/90 underline-offset-4 hover:underline">
             Политика конфиденциальности
           </Link>
         </div>

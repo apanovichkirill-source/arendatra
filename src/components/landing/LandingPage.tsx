@@ -6,6 +6,7 @@ import { SITE_URL } from "@/lib/site";
 import { CITY_INFO } from "@/lib/cities";
 import { getLandingCombos, landingPath, pluralize, type getLandingData } from "@/lib/landing";
 import { CATEGORY_SEO } from "@/lib/seo";
+import { PageHero } from "@/components/PageHero";
 
 type Data = NonNullable<Awaited<ReturnType<typeof getLandingData>>>;
 
@@ -89,7 +90,25 @@ export async function LandingPage({ data }: { data: Data }) {
   const seoDescription = CATEGORY_SEO[category.slug]?.description;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
+    <>
+      <PageHero title={heading} eyebrow={city ?? "Коми · НАО"}>
+        <nav aria-label="Навигация" className="mt-4 text-sm text-white/60">
+          <Link href="/" className="hover:text-white">Главная</Link>
+          {" / "}
+          <Link href="/catalog" className="hover:text-white">Каталог</Link>
+          {city && (
+            <>
+              {" / "}
+              <Link href={landingPath(category.slug)} className="hover:text-white">
+                {category.name}
+              </Link>
+            </>
+          )}
+          {" / "}
+          <span className="text-white">{city ?? category.name}</span>
+        </nav>
+      </PageHero>
+      <div className="mx-auto max-w-6xl px-4 py-8">
       {jsonLd.map((block, i) => (
         <script
           key={i}
@@ -98,24 +117,6 @@ export async function LandingPage({ data }: { data: Data }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(block) }}
         />
       ))}
-
-      <nav aria-label="Навигация" className="mb-4 text-sm text-gray-500">
-        <Link href="/" className="hover:text-brand-blue">Главная</Link>
-        {" / "}
-        <Link href="/catalog" className="hover:text-brand-blue">Каталог</Link>
-        {city && (
-          <>
-            {" / "}
-            <Link href={landingPath(category.slug)} className="hover:text-brand-blue">
-              {category.name}
-            </Link>
-          </>
-        )}
-        {" / "}
-        <span className="text-gray-700">{city ?? category.name}</span>
-      </nav>
-
-      <h1 className="text-2xl font-bold text-brand-navy sm:text-3xl">{heading}</h1>
 
       <div className="mt-4 max-w-3xl space-y-3 text-gray-700">
         <p>{content.intro}</p>
@@ -257,6 +258,7 @@ export async function LandingPage({ data }: { data: Data }) {
           )}
         </section>
       )}
-    </div>
+      </div>
+    </>
   );
 }

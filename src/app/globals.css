@@ -4,9 +4,9 @@
   --background: #f4f6f8;
   --foreground: #101828;
 
-  --color-brand-navy: #0b2545;
-  --color-brand-blue: #1d4e89;
-  --color-brand-blue-light: #eaf1fa;
+  --color-brand-navy: #16253b;
+  --color-brand-blue: #1066e8;
+  --color-brand-blue-light: #e7f0fd;
   --color-brand-orange: #ff7a1a;
   --color-brand-orange-dark: #e0650a;
 }
@@ -27,4 +27,65 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+h1,
+h2,
+.font-display {
+  font-family: var(--font-display), var(--font-sans), Arial, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.bg-blueprint {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.bg-blueprint-light {
+  background-image:
+    linear-gradient(rgba(22, 37, 59, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22, 37, 59, 0.045) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.logo-silhouette {
+  filter: brightness(0) invert(1);
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float-soft {
+  animation: float-soft 6s ease-in-out infinite;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-soft,
+  .animate-fade-up {
+    animation: none;
+  }
 }

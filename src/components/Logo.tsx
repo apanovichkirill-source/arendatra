@@ -1,25 +1,44 @@
 import Image from "next/image";
 
-export function LogoMark({ className = "h-5 w-5" }: { className?: string }) {
+export function LogoMark({
+  className = "h-10 w-auto",
+  silhouette = false,
+}: {
+  className?: string;
+  silhouette?: boolean;
+}) {
   return (
     <Image
-      src="/logo-icon.png"
+      src="/logo-mark.png"
       alt=""
-      width={64}
-      height={64}
-      className={className}
+      width={540}
+      height={640}
+      className={`${className} ${silhouette ? "logo-silhouette" : ""}`}
       priority
     />
   );
 }
 
-export function Logo({ className = "" }: { className?: string }) {
+export function Wordmark({ className = "text-xl", onDark = false }: { className?: string; onDark?: boolean }) {
   return (
-    <span className={`flex items-center gap-2 ${className}`}>
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white p-1">
-        <LogoMark className="h-full w-full" />
-      </span>
-      <span className="text-xl font-bold">Арендатра</span>
+    <span className={`font-display font-extrabold uppercase tracking-tight ${className}`}>
+      <span className={onDark ? "text-white" : "text-brand-navy"}>Аренда</span>
+      <span className={onDark ? "text-[#4d94ff]" : "text-brand-blue"}>тра</span>
+    </span>
+  );
+}
+
+export function Logo({ className = "", onDark = false }: { className?: string; onDark?: boolean }) {
+  return (
+    <span className={`flex items-center gap-2.5 ${className}`}>
+      {onDark ? (
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm">
+          <LogoMark className="h-8 w-auto" />
+        </span>
+      ) : (
+        <LogoMark className="h-11 w-auto" />
+      )}
+      <Wordmark onDark={onDark} className="text-[1.35rem] leading-none" />
     </span>
   );
 }
