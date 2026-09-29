@@ -1,9 +1,11 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { SITE_URL } from "@/lib/site";
+import { getLandingCombos, landingPath } from "@/lib/landing";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [vehicles, owners] = await Promise.all([
+  const [combos, vehicles, owners] = await Promise.all([
+    getLandingCombos(),
     prisma.vehicle.findMany({
       where: { isActive: true },
       select: { slug: true, updatedAt: true },
@@ -17,6 +19,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: SITE_URL, changeFrequency: "daily", priority: 1 },
     { url: `${SITE_URL}/catalog`, changeFrequency: "daily", priority: 0.9 },
+    ...[...new Set(combos.map((c) => c.categorySlug))].map((slug) => ({
+      url: `${SITE_URL}${landingPath(slug)}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    })),
+    ...combos.map((c) => ({
+      url: `${SITE_URL}${landingPath(c.categorySlug, c.city)}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
     ...vehicles.map((v) => ({
       url: `${SITE_URL}/vehicle/${v.slug}`,
       lastModified: v.updatedAt,

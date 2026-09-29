@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { CookieBanner } from "@/components/CookieBanner";
 import { CityPrompt } from "@/components/CityPrompt";
 import { GeoCapture } from "@/components/GeoCapture";
+import { YandexMetrika } from "@/components/YandexMetrika";
 import { getBuyerSession } from "@/lib/session";
 import { SITE_URL } from "@/lib/site";
 import { SERVICE_CITIES } from "@/lib/cities";
@@ -28,7 +29,6 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Арендатра — аренда спецтехники и транспорта в Коми и НАО",
   description: DESCRIPTION,
-  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "ru_RU",
@@ -72,6 +72,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <main className="flex-1">{children}</main>
         <Footer />
         <CookieBanner />
+        <YandexMetrika />
         {buyerSession && <GeoCapture />}
       </body>
     </html>

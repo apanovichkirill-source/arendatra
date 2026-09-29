@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { createBooking } from "@/lib/actions/booking";
 import { diffHours, formatPrice } from "@/lib/format";
+import { reachGoal } from "@/lib/metrika";
 import { AvailabilityCalendar } from "./AvailabilityCalendar";
 
 function startOfDay(d: Date) {
@@ -105,6 +106,7 @@ export function BookingWidget({
       setError(result.error);
       return;
     }
+    reachGoal("booking");
     setSuccess(result.bookingId);
   }
 

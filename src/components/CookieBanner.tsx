@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-const STORAGE_KEY = "armada_cookie_consent";
+import { COOKIE_CONSENT_EVENT, COOKIE_CONSENT_KEY as STORAGE_KEY } from "@/lib/cookie-consent";
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
@@ -27,6 +27,7 @@ export function CookieBanner() {
     } catch {
       // ignore
     }
+    window.dispatchEvent(new Event(COOKIE_CONSENT_EVENT));
     setVisible(false);
   }
 
@@ -37,7 +38,8 @@ export function CookieBanner() {
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 sm:flex-row sm:justify-between">
         <p className="text-sm text-gray-600">
           Сайт использует технически необходимые cookie для входа в личный кабинет и
-          админ-панель. Продолжая пользоваться сайтом, вы соглашаетесь с их использованием —
+          админ-панель, а также cookie сервиса статистики Яндекс.Метрика (анонимная
+          статистика посещений). Нажимая «Принимаю», вы соглашаетесь с их использованием —
           подробнее в{" "}
           <Link href="/privacy" className="text-brand-blue hover:underline">
             политике конфиденциальности

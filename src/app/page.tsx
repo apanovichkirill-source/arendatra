@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getVehicles, getCities, getCategories } from "@/lib/vehicles";
 import { VehicleCard } from "@/components/catalog/VehicleCard";
 import { CategoryPicker } from "@/components/catalog/CategoryPicker";
 import { PRICING_NOTE } from "@/lib/format";
+import { getLandingCombos, landingPath } from "@/lib/landing";
+import { CATEGORY_SEO } from "@/lib/seo";
+import { CITY_INFO } from "@/lib/cities";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 const GROUPS = [
   {
@@ -38,10 +44,11 @@ const STEPS = [
 ];
 
 export default async function HomePage() {
-  const [vehicles, cities, categories] = await Promise.all([
+  const [vehicles, cities, categories, combos] = await Promise.all([
     getVehicles(),
     getCities(),
     getCategories(),
+    getLandingCombos(),
   ]);
   const featured = vehicles.slice(0, 6);
   const categoryGroups = GROUPS.map((g) => ({
@@ -135,6 +142,23 @@ export default async function HomePage() {
                 categoryGroup={v.category.group}
                 attributes={v.attributes as Record<string, string> | null}
               />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {combos.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 py-10">
+          <h2 className="mb-4 text-xl font-bold text-brand-navy">Аренда техники по городам</h2>
+          <div className="flex flex-wrap gap-2">
+            {combos.map((c) => (
+              <Link
+                key={`${c.categorySlug}-${c.city}`}
+                href={landingPath(c.categorySlug, c.city)}
+                className="rounded-full border border-black/10 bg-white px-3 py-1 text-sm text-brand-blue hover:border-brand-blue"
+              >
+                {(CATEGORY_SEO[c.categorySlug]?.title ?? c.categorySlug)} {CITY_INFO[c.city].in}
+              </Link>
             ))}
           </div>
         </section>

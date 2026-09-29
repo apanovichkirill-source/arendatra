@@ -29,10 +29,23 @@ export async function generateMetadata({
     null;
 
   if (seo) {
-    return { title: seo.title, description: seo.description, keywords: seo.keywords };
+    return {
+      title: seo.title,
+      description: seo.description,
+      keywords: seo.keywords,
+      alternates: {
+        canonical:
+          sp.category && CATEGORY_SEO[sp.category]
+            ? `/arenda/${sp.category}`
+            : sp.group
+              ? `/catalog?group=${sp.group}`
+              : "/catalog",
+      },
+    };
   }
 
   return {
+    alternates: { canonical: "/catalog" },
     title: "Каталог техники в аренду",
     description:
       "Автокраны, автовышки, экскаваторы, бульдозеры, вахтовые автобусы и легковой транспорт в Республике Коми и НАО. Фильтры по датам, городу и цене.",
