@@ -219,7 +219,7 @@ export function BookingWidget({
           className="mt-0.5"
         />
         <span>
-          Согласен(на) на обработку персональных данных в соответствии с{" "}
+          Согласен(на) на обработку персональных данных, включая данные о геопозиции, в соответствии с{" "}
           <Link href="/privacy" target="_blank" className="text-brand-blue hover:underline">
             политикой конфиденциальности
           </Link>

@@ -37,3 +37,7 @@ export function nearestCity(lat: number, lon: number): string {
   }
   return best;
 }
+
+export function mapLink(lat: number, lng: number) {
+  return `https://yandex.ru/maps/?pt=${lng},${lat}&z=13&l=map`;
+}

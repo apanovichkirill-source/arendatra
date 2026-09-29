@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { formatDateTime, formatPrice } from "@/lib/format";
+import { mapLink } from "@/lib/geo";
 import { updateBookingStatus } from "@/lib/actions/admin-catalog";
 import { BookingStatusSelect } from "./BookingStatusSelect";
 
@@ -20,6 +21,7 @@ export default async function AdminBookingsPage() {
               <th className="px-4 py-3">Транспорт</th>
               <th className="px-4 py-3">Даты</th>
               <th className="px-4 py-3">Контакт</th>
+              <th className="px-4 py-3">Геопозиция</th>
               <th className="px-4 py-3">Комментарий</th>
               <th className="px-4 py-3">Сумма</th>
               <th className="px-4 py-3">Статус</th>
@@ -35,6 +37,20 @@ export default async function AdminBookingsPage() {
                 <td className="px-4 py-3 text-gray-600">
                   {b.contactName ? `${b.contactName}, ` : ""}
                   {b.contactPhone}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-gray-600">
+                  {b.geoLat != null && b.geoLng != null ? (
+                    <a
+                      href={mapLink(b.geoLat, b.geoLng)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-blue hover:underline"
+                    >
+                      На карте
+                    </a>
+                  ) : (
+                    <span className="text-gray-300">—</span>
+                  )}
                 </td>
                 <td className="max-w-[240px] px-4 py-3 text-gray-600">
                   {b.comment ? (

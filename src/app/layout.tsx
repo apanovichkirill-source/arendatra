@@ -6,6 +6,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CookieBanner } from "@/components/CookieBanner";
 import { CityPrompt } from "@/components/CityPrompt";
+import { GeoCapture } from "@/components/GeoCapture";
+import { getBuyerSession } from "@/lib/session";
 import { SITE_URL } from "@/lib/site";
 import { SERVICE_CITIES } from "@/lib/cities";
 
@@ -37,6 +39,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const nonce = (await headers()).get("x-nonce") || undefined;
+  const buyerSession = await getBuyerSession();
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -69,6 +72,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <main className="flex-1">{children}</main>
         <Footer />
         <CookieBanner />
+        {buyerSession && <GeoCapture />}
       </body>
     </html>
   );

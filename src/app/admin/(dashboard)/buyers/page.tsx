@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDateTime } from "@/lib/format";
+import { mapLink } from "@/lib/geo";
 
 export default async function AdminBuyersPage() {
   const buyers = await prisma.buyer.findMany({
@@ -23,6 +24,7 @@ export default async function AdminBuyersPage() {
               <th className="px-4 py-3">Город</th>
               <th className="px-4 py-3">Организация</th>
               <th className="px-4 py-3">Регистрация</th>
+              <th className="px-4 py-3">Последняя геопозиция</th>
               <th className="px-4 py-3">Согласие на данные</th>
               <th className="px-4 py-3">Броней</th>
             </tr>
@@ -39,6 +41,27 @@ export default async function AdminBuyersPage() {
                 <td className="px-4 py-3 text-gray-600">{b.city || "—"}</td>
                 <td className="px-4 py-3 text-gray-600">{b.organization || "—"}</td>
                 <td className="px-4 py-3 text-gray-600">{formatDate(b.createdAt)}</td>
+                <td className="px-4 py-3 whitespace-nowrap text-gray-600">
+                  {b.lastLat != null && b.lastLng != null ? (
+                    <>
+                      <a
+                        href={mapLink(b.lastLat, b.lastLng)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-brand-blue hover:underline"
+                      >
+                        {b.lastGeoCity ? `Рядом: ${b.lastGeoCity}` : "На карте"}
+                      </a>
+                      {b.lastGeoAt && (
+                        <span className="block text-xs text-gray-400">
+                          {formatDateTime(b.lastGeoAt)}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    "—"
+                  )}
+                </td>
                 <td className="px-4 py-3 text-gray-600">
                   {b.consentAt ? formatDate(b.consentAt) : "—"}
                 </td>

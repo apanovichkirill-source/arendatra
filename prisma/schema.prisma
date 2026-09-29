@@ -31,6 +31,10 @@ model Buyer {
   consentAt      DateTime?
   failedAttempts Int       @default(0)
   lockedUntil    DateTime?
+  lastLat        Float?
+  lastLng        Float?
+  lastGeoCity    String?
+  lastGeoAt      DateTime?
 
   bookings Booking[]
 
@@ -129,6 +133,8 @@ model Booking {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   consentAt    DateTime?
+  geoLat       Float?
+  geoLng       Float?
 
   buyerId String?
   buyer   Buyer? @relation(fields: [buyerId], references: [id])

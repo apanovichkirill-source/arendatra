@@ -4,6 +4,7 @@ import { getBuyerSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { formatPrice, formatDateTime, BOOKING_STATUS_LABELS } from "@/lib/format";
 import { logoutBuyer } from "@/lib/actions/buyer-auth";
+import { GeoCapture } from "@/components/GeoCapture";
 
 export const metadata: Metadata = {
   title: "Личный кабинет",
@@ -25,6 +26,7 @@ export default async function AccountPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
+      <GeoCapture />
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-brand-navy">Личный кабинет</h1>

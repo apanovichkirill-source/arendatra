@@ -9,6 +9,7 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const MIN_BOOKING_HOURS = 1;
 const MAX_BOOKING_HOURS = 24 * 30; // не длиннее месяца за одну бронь
+const GEO_FRESH_MS = 24 * 60 * 60 * 1000; // геопозиция арендатора актуальна для брони 24 часа
 
 const bookingSchema = z
   .object({
@@ -82,6 +83,14 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
   }
 
   const session = await getBuyerSession();
+  const buyer = session
+    ? await prisma.buyer.findUnique({
+        where: { id: session.buyerId },
+        select: { lastLat: true, lastLng: true, lastGeoAt: true },
+      })
+    : null;
+  const hasFreshGeo =
+    buyer?.lastGeoAt && Date.now() - buyer.lastGeoAt.getTime() < GEO_FRESH_MS;
   const totalPrice = vehicle.pricePerHour ? Number(vehicle.pricePerHour) * hours : null;
 
   const booking = await prisma.booking.create({
@@ -95,6 +104,8 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
       comment: parsed.data.comment,
       buyerId: session?.buyerId,
       consentAt: new Date(),
+      geoLat: hasFreshGeo ? buyer?.lastLat : null,
+      geoLng: hasFreshGeo ? buyer?.lastLng : null,
     },
   });
 
