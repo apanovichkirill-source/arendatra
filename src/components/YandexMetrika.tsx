@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { COOKIE_CONSENT_EVENT, COOKIE_CONSENT_KEY } from "@/lib/cookie-consent";
-import { YM_ID } from "@/lib/metrika";
+import { YM_ID, reachGoal } from "@/lib/metrika";
 
 type YmWindow = Window & {
   ym?: ((...args: unknown[]) => void) & { a?: unknown[][]; l?: number };
@@ -28,6 +28,17 @@ function loadMetrika(id: number) {
     trackLinks: true,
     accurateTrackBounce: true,
     webvisor: false,
+  });
+
+  document.addEventListener("click", (e) => {
+    const link = (e.target as Element | null)?.closest?.("a");
+    const href = link?.getAttribute("href") ?? "";
+    if (href.startsWith("tel:")) reachGoal("phone_click");
+    else if (href.startsWith("/vehicle/")) reachGoal("vehicle_open");
+  });
+  document.addEventListener("submit", (e) => {
+    const form = e.target as HTMLFormElement | null;
+    if (form?.getAttribute("action") === "/catalog") reachGoal("search");
   });
 }
 
