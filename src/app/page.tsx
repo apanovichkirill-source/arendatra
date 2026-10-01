@@ -6,7 +6,7 @@ import { CategoryPicker } from "@/components/catalog/CategoryPicker";
 import { PRICING_NOTE } from "@/lib/format";
 import { getLandingCombos, landingPath } from "@/lib/landing";
 import { CATEGORY_SEO } from "@/lib/seo";
-import { CITY_INFO } from "@/lib/cities";
+import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
 import { LogoMark } from "@/components/Logo";
 import { VehicleIcon } from "@/components/catalog/VehicleIcon";
 
@@ -173,6 +173,21 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <section className="mx-auto max-w-6xl px-4 py-10">
+        <h2 className="mb-4 text-2xl font-extrabold text-brand-navy">Аренда спецтехники по городам</h2>
+        <div className="flex flex-wrap gap-2">
+          {SERVICE_CITIES.map((c) => (
+            <Link
+              key={c}
+              href={`/spetstehnika/${CITY_INFO[c].slug}`}
+              className="rounded-full border border-black/10 bg-white px-3 py-1 text-sm text-brand-blue hover:border-brand-blue"
+            >
+              Спецтехника {CITY_INFO[c].in}
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {combos.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 py-10">

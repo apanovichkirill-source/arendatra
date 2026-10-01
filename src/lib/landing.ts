@@ -77,7 +77,7 @@ export function landingMeta(
       ? `${vehicles.length} ${pluralize(vehicles.length, ["вариант", "варианта", "вариантов"])} в наличии`
       : "подберём технику под ваш объект"
   }${minPrice !== null ? `, от ${formatPrice(minPrice)} в час без НДС` : ""}. Почасовые тарифы, бронирование онлайн без предоплаты.`;
-  return { title, description, indexable: vehicles.length > 0 };
+  return { title, description, indexable: true };
 }
 
 export function pluralize(n: number, forms: [string, string, string]) {

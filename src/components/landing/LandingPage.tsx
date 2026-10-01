@@ -3,9 +3,10 @@ import { headers } from "next/headers";
 import { VehicleCard } from "@/components/catalog/VehicleCard";
 import { formatPrice, PRICING_NOTE } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
-import { CITY_INFO } from "@/lib/cities";
-import { getLandingCombos, landingPath, pluralize, type getLandingData } from "@/lib/landing";
-import { CATEGORY_SEO } from "@/lib/seo";
+import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
+import { CITY_EXTRA, categorySynonyms } from "@/lib/seo-pages";
+import { landingPath, pluralize, type getLandingData } from "@/lib/landing";
+import { CATEGORY_LANDING, CATEGORY_SEO } from "@/lib/seo";
 import { PageHero } from "@/components/PageHero";
 
 type Data = NonNullable<Awaited<ReturnType<typeof getLandingData>>>;
@@ -13,17 +14,16 @@ type Data = NonNullable<Awaited<ReturnType<typeof getLandingData>>>;
 export async function LandingPage({ data }: { data: Data }) {
   const { category, content, city, vehicles, otherVehicles, minPrice, minHours } = data;
   const nonce = (await headers()).get("x-nonce") || undefined;
-  const combos = await getLandingCombos();
 
   const where = city ? CITY_INFO[city].in : "в Республике Коми и НАО";
   const heading = `Аренда ${content.genitive} ${where}`;
   const path = landingPath(category.slug, city);
 
-  const otherCities = combos
-    .filter((c) => c.categorySlug === category.slug && c.city !== city)
-    .map((c) => c.city);
+  const otherCities = SERVICE_CITIES.filter((c) => c !== city);
   const otherCategories = city
-    ? combos.filter((c) => c.city === city && c.categorySlug !== category.slug)
+    ? Object.keys(CATEGORY_LANDING)
+        .filter((slug) => slug !== category.slug)
+        .map((slug) => ({ categorySlug: slug }))
     : [];
 
   const faq = [
@@ -197,6 +197,26 @@ export async function LandingPage({ data }: { data: Data }) {
           ))}
         </ul>
       </section>
+
+      {city && (
+        <section className="mt-10">
+          <h2 className="mb-3 text-xl font-bold text-brand-navy">
+            Для каких работ арендуют {content.genitive} {where}
+          </h2>
+          <ul className="list-inside list-disc space-y-1 text-gray-700">
+            {CITY_EXTRA[city].works.map((w) => (
+              <li key={w}>{w}</li>
+            ))}
+          </ul>
+          <p className="mt-3 max-w-3xl text-sm text-gray-600">{CITY_EXTRA[city].logistics}</p>
+        </section>
+      )}
+
+      {categorySynonyms(category.slug) && (
+        <p className="mt-6 max-w-3xl text-sm text-gray-500">
+          Также ищут: {categorySynonyms(category.slug)}.
+        </p>
+      )}
 
       <section className="mt-10">
         <h2 className="mb-3 text-xl font-bold text-brand-navy">Частые вопросы</h2>

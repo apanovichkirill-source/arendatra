@@ -65,3 +65,5 @@ export const CITY_INFO: Record<
 export function cityBySlug(slug: string) {
   return SERVICE_CITIES.find((c) => CITY_INFO[c].slug === slug) ?? null;
 }
+
+export type ServiceCityName = (typeof SERVICE_CITIES)[number];

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo, LogoMark } from "@/components/Logo";
 import { CATEGORY_SEO } from "@/lib/seo";
+import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
 
 export function Footer() {
   return (
@@ -34,6 +35,22 @@ export function Footer() {
             </ul>
           </nav>
         </div>
+        <nav aria-label="Спецтехника по городам" className="mt-10">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-brand-orange">
+            <Link href="/spetstehnika" className="hover:text-white">
+              Аренда спецтехники по городам
+            </Link>
+          </p>
+          <ul className="flex flex-wrap gap-x-5 gap-y-1.5">
+            {SERVICE_CITIES.map((c) => (
+              <li key={c}>
+                <Link href={`/spetstehnika/${CITY_INFO[c].slug}`} className="transition hover:text-white">
+                  Спецтехника {CITY_INFO[c].in}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
         <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/10 pt-6">
           <p>© {new Date().getFullYear()} Арендатра. Все права защищены.</p>
           <Link href="/privacy" className="text-white/90 underline-offset-4 hover:underline">
