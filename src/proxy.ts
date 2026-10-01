@@ -12,8 +12,8 @@ export function proxy(request: NextRequest) {
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""};
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://mc.yandex.ru;
-    connect-src 'self' https://mc.yandex.ru https://mc.yandex.com wss://mc.yandex.ru;
+    img-src 'self' blob: data: https://mc.yandex.ru https://mc.yandex.com;
+    connect-src 'self' https://mc.yandex.ru https://mc.yandex.com wss://mc.yandex.ru wss://mc.yandex.com;
     frame-src https://mc.yandex.ru https://mc.yandex.com;
     font-src 'self';
     object-src 'none';

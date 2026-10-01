@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
@@ -12,7 +11,8 @@ import { BookingWidget } from "@/components/booking/BookingWidget";
 import { VehicleIcon } from "@/components/catalog/VehicleIcon";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { getVehicleReviews } from "@/lib/reviews";
-import { vehiclePhoto } from "@/content/vehicle-photos";
+import { vehiclePhotos } from "@/content/vehicle-photos";
+import { VehicleGallery } from "@/components/catalog/VehicleGallery";
 import { PartnerBlock } from "@/components/PartnerBlock";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -52,7 +52,7 @@ export default async function VehiclePage({ params }: Props) {
       : {};
 
   const nonce = (await headers()).get("x-nonce") || undefined;
-  const photo = vehiclePhoto(vehicle.slug);
+  const photos = vehiclePhotos(vehicle.slug, 4);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -113,33 +113,8 @@ export default async function VehiclePage({ params }: Props) {
 
       <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
         <div>
-          {photo ? (
-            <figure>
-              <Image
-                src={photo.src}
-                alt={photo.alt}
-                width={1200}
-                height={750}
-                priority
-                sizes="(max-width: 1024px) 100vw, 620px"
-                className="aspect-[16/9] w-full rounded-xl object-cover"
-              />
-              <figcaption className="mt-2 text-xs text-gray-400">
-                Иллюстративное фото: так выглядит техника этого типа, это не снимок конкретной машины.
-                Автор: {photo.author}, {photo.license}
-                {photo.licenseUrl && (
-                  <>
-                    {" "}
-                    (<a href={photo.licenseUrl} rel="noopener noreferrer" target="_blank" className="underline">лицензия</a>)
-                  </>
-                )}
-                . Источник:{" "}
-                <a href={photo.source} rel="noopener noreferrer" target="_blank" className="underline">
-                  Wikimedia Commons
-                </a>
-                .
-              </figcaption>
-            </figure>
+          {photos.length > 0 ? (
+            <VehicleGallery photos={photos} title={vehicle.title} />
           ) : (
             <div className="flex aspect-[16/9] items-center justify-center rounded-xl bg-brand-blue-light text-brand-blue">
               <VehicleIcon group={vehicle.category.group} className="h-24 w-24 opacity-60" />
