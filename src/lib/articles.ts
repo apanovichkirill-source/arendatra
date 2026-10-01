@@ -4,6 +4,10 @@ import { ARTICLES_BATCH_3 } from "@/content/articles-3";
 import { ARTICLES_BATCH_4 } from "@/content/articles-4";
 import { ARTICLES_BATCH_5 } from "@/content/articles-5";
 import { ARTICLES_BATCH_6 } from "@/content/articles-6";
+import { ARTICLES_BATCH_7 } from "@/content/articles-7";
+import { ARTICLES_BATCH_8 } from "@/content/articles-8";
+import { ARTICLES_BATCH_9 } from "@/content/articles-9";
+import { ARTICLES_BATCH_10 } from "@/content/articles-10";
 
 export type ArticleBlock =
   | { type: "h2"; text: string }
@@ -27,7 +31,7 @@ export type Article = {
   related: { label: string; href: string }[];
 };
 
-const ALL: Article[] = [...ARTICLES_BATCH_1, ...ARTICLES_BATCH_2, ...ARTICLES_BATCH_3, ...ARTICLES_BATCH_4, ...ARTICLES_BATCH_5, ...ARTICLES_BATCH_6];
+const ALL: Article[] = [...ARTICLES_BATCH_1, ...ARTICLES_BATCH_2, ...ARTICLES_BATCH_3, ...ARTICLES_BATCH_4, ...ARTICLES_BATCH_5, ...ARTICLES_BATCH_6, ...ARTICLES_BATCH_7, ...ARTICLES_BATCH_8, ...ARTICLES_BATCH_9, ...ARTICLES_BATCH_10];
 
 function todayMoscow() {
   return new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Moscow" }).format(new Date());
