@@ -212,3 +212,14 @@ export const CATEGORY_LANDING: Record<
     ],
   },
 };
+
+// Винительный падеж: «арендуют автокран 25 тонн»
+export const ACCUSATIVE: Record<string, string> = {
+  "avtokran-25t": "автокран 25 тонн",
+  "avtokran-50t": "автокран 50 тонн",
+  "avtovyshka-agp": "автовышку (АГП)",
+  "gusenichnyy-ekskavator": "гусеничный экскаватор",
+  buldozer: "бульдозер",
+  "vahtovyy-avtobus": "вахтовый автобус",
+  "legkovye-ts": "легковой транспорт",
+};

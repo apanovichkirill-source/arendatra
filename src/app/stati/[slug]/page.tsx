@@ -6,6 +6,8 @@ import { notFound } from "next/navigation";
 import { PageHero } from "@/components/PageHero";
 import { SITE_URL } from "@/lib/site";
 import { ARTICLE_IMAGES } from "@/content/article-images";
+import { vehiclePhoto } from "@/content/vehicle-photos";
+import { PartnerBlock } from "@/components/PartnerBlock";
 import {
   formatArticleDate,
   getArticle,
@@ -32,7 +34,7 @@ export default async function ArticlePage({ params }: Props) {
   const a = getArticle(slug);
   if (!a) notFound();
   const nonce = (await headers()).get("x-nonce") || undefined;
-  const image = ARTICLE_IMAGES[a.slug];
+  const image = ARTICLE_IMAGES[a.slug] ?? (a.photoKey ? vehiclePhoto(`${a.photoKey}-${a.slug}`) : null);
   const more = getPublishedArticles()
     .filter((x) => x.slug !== a.slug)
     .slice(0, 3);
@@ -127,6 +129,8 @@ export default async function ArticlePage({ params }: Props) {
             );
           })}
         </div>
+
+        {a.partner && <PartnerBlock className="mt-10" />}
 
         <div className="mt-10 rounded-2xl bg-brand-navy p-6 text-white">
           <p className="text-lg font-bold">Нужна техника под вашу задачу?</p>

@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
 import { ARTICLE_IMAGES } from "@/content/article-images";
+import { vehiclePhoto } from "@/content/vehicle-photos";
 import { formatArticleDate, getPublishedArticles, readingMinutes } from "@/lib/articles";
 
 export const metadata: Metadata = {
@@ -30,10 +31,10 @@ export default function ArticlesPage() {
               href={`/stati/${a.slug}`}
               className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition hover:-translate-y-1 hover:border-brand-blue hover:shadow-lg hover:shadow-brand-blue/10"
             >
-              {ARTICLE_IMAGES[a.slug] && (
+              {(ARTICLE_IMAGES[a.slug] ?? (a.photoKey ? vehiclePhoto(`${a.photoKey}-${a.slug}`) : null)) && (
                 <Image
-                  src={ARTICLE_IMAGES[a.slug].src}
-                  alt={ARTICLE_IMAGES[a.slug].alt}
+                  src={(ARTICLE_IMAGES[a.slug] ?? vehiclePhoto(`${a.photoKey}-${a.slug}`))!.src}
+                  alt={(ARTICLE_IMAGES[a.slug] ?? vehiclePhoto(`${a.photoKey}-${a.slug}`))!.alt}
                   width={600}
                   height={400}
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px"

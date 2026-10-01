@@ -108,6 +108,31 @@ export async function SeoLanding({ page }: { page: SeoPageModel }) {
           </section>
         )}
 
+        {page.facts && (
+          <section className="mt-10">
+            <h2 className="mb-3 text-xl font-bold text-brand-navy">{page.facts.title}</h2>
+            <div className="overflow-x-auto rounded-xl border border-black/10 bg-white">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-gray-50 text-gray-500">
+                  <tr>
+                    <th className="px-4 py-2 font-medium">{page.facts.head[0]}</th>
+                    <th className="px-4 py-2 font-medium">{page.facts.head[1]}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {page.facts.rows.map(([a, b]) => (
+                    <tr key={a} className="border-t border-black/5">
+                      <td className="px-4 py-2 font-medium text-brand-navy">{a}</td>
+                      <td className="px-4 py-2 text-gray-700">{b}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-2 text-xs text-gray-400">{PRICING_NOTE}</p>
+          </section>
+        )}
+
         {page.priceTable && (
           <section className="mt-10">
             <h2 className="mb-3 text-xl font-bold text-brand-navy">{page.priceTable.title}</h2>
@@ -142,7 +167,7 @@ export async function SeoLanding({ page }: { page: SeoPageModel }) {
           </section>
         )}
 
-        {page.priceTable && <RentalCalculator rows={page.priceTable.rows} />}
+        {(page.calculator ?? page.priceTable?.rows) && <RentalCalculator rows={(page.calculator ?? page.priceTable!.rows)} />}
 
         {page.sections.map((s) => (
           <section key={s.title} className="mt-10">

@@ -7,6 +7,7 @@ import { PRICING_NOTE } from "@/lib/format";
 import { getLandingCombos, landingPath } from "@/lib/landing";
 import { CATEGORY_SEO } from "@/lib/seo";
 import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
+import { PartnerBlock } from "@/components/PartnerBlock";
 import { LogoMark } from "@/components/Logo";
 import { CLIENTS, PHONES, WORK_HOURS } from "@/lib/contacts";
 import { VehicleIcon } from "@/components/catalog/VehicleIcon";
@@ -174,6 +175,27 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <section className="mx-auto max-w-6xl px-4 py-10">
+        <h2 className="mb-4 text-2xl font-extrabold text-brand-navy">Часто ищут</h2>
+        <div className="flex flex-wrap gap-2">
+          {(["usinsk", "uhta", "syktyvkar", "pechora", "vorkuta"] as const).flatMap((slug) =>
+            Object.keys(CATEGORY_SEO).slice(0, 4).map((cat) => {
+              const city = SERVICE_CITIES.find((c) => CITY_INFO[c].slug === slug)!;
+              return (
+                <Link
+                  key={`${cat}-${slug}`}
+                  href={`/arenda/${cat}/${slug}`}
+                  className="rounded-full border border-black/10 bg-white px-3 py-1 text-sm text-brand-blue hover:border-brand-blue"
+                >
+                  {(CATEGORY_SEO[cat]?.title ?? cat).replace(/^Аренда /, "Аренда ")} {CITY_INFO[city].in}
+                </Link>
+              );
+            })
+          )}
+        </div>
+        <div className="mt-6"><PartnerBlock /></div>
+      </section>
 
       <section className="mx-auto max-w-6xl px-4 py-10">
         <h2 className="mb-4 text-2xl font-extrabold text-brand-navy">Аренда спецтехники по городам</h2>

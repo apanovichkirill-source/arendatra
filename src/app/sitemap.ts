@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { SITE_URL } from "@/lib/site";
 import { landingPath } from "@/lib/landing";
-import { allSeoPaths } from "@/lib/seo-pages";
+import { getSeoPaths } from "@/lib/seo-pages";
 import { getPublishedArticles } from "@/lib/articles";
 import { CATEGORY_LANDING } from "@/lib/seo";
 
@@ -30,6 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     { url: `${SITE_URL}/kontakty`, changeFrequency: "monthly" as const, priority: 0.6 },
     { url: `${SITE_URL}/o-nas`, changeFrequency: "monthly" as const, priority: 0.6 },
+    { url: `${SITE_URL}/karta-sayta`, changeFrequency: "weekly" as const, priority: 0.5 },
     { url: `${SITE_URL}/stati`, changeFrequency: "daily" as const, priority: 0.7 },
     ...getPublishedArticles().map((a) => ({
       url: `${SITE_URL}/stati/${a.slug}`,
@@ -37,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
-    ...allSeoPaths().map((p) => ({
+    ...(await getSeoPaths()).map((p) => ({
       url: `${SITE_URL}${p.path}`,
       changeFrequency: "weekly" as const,
       priority: p.priority,

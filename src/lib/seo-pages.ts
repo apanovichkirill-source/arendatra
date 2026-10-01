@@ -3,7 +3,7 @@
 // Каждая страница собирается из реальных данных каталога + уникальных по городу фактов.
 import type { CategoryGroup } from "@prisma/client";
 import { getCategories, getVehicles } from "@/lib/vehicles";
-import { CATEGORY_LANDING, CATEGORY_SEO } from "@/lib/seo";
+import { ACCUSATIVE, CATEGORY_LANDING, CATEGORY_SEO } from "@/lib/seo";
 import { CITY_INFO, SERVICE_CITIES, cityBySlug, type ServiceCityName } from "@/lib/cities";
 import { formatPrice } from "@/lib/format";
 import { pluralize } from "@/lib/landing";
@@ -26,6 +26,9 @@ export type SeoPageModel = {
   fallbackText?: string;
   fallbackVehicles?: Vehicles;
   sections: { title: string; paragraphs?: string[]; bullets?: string[] }[];
+  indexable?: boolean;
+  facts?: { title: string; head: [string, string]; rows: [string, string][] };
+  calculator?: { name: string; href: string; price: number | null }[];
   priceTable?: { title: string; rows: { name: string; href: string; price: number | null; inCity: boolean }[] };
   faq: { q: string; a: string }[];
   linkGroups: { title: string; links: SeoLink[] }[];
@@ -150,6 +153,114 @@ export const CITY_EXTRA: Record<
     logistics:
       "Кожва — небольшой посёлок, поэтому часто техника подаётся из соседней Печоры; условия подачи уточняет менеджер.",
     nearby: ["Печора", "Усинск"],
+  },
+  "Инта": {
+    region: "Республика Коми",
+    works: [
+      "Земляные и строительные работы на промышленных площадках",
+      "Монтаж и перемещение тяжёлого оборудования",
+      "Ремонт дорог и инженерных сетей",
+      "Перевозка бригад к удалённым объектам",
+    ],
+    logistics:
+      "Инта находится на севере республики, поэтому технику чаще подают из Воркуты или Печоры; сроки и условия подачи подтверждает менеджер.",
+    nearby: ["Воркута", "Печора", "Усинск"],
+  },
+  "Вуктыл": {
+    region: "Республика Коми",
+    works: [
+      "Работы на объектах газодобычи и обустройства площадок",
+      "Земляные работы и строительство дорог",
+      "Монтаж и погрузка оборудования",
+      "Перевозка вахтовых бригад",
+    ],
+    logistics:
+      "Вуктыл находится на востоке республики, технику обычно подают из Печоры или Ухты; маршрут и сроки согласует менеджер.",
+    nearby: ["Печора", "Ухта"],
+  },
+  "Емва": {
+    region: "Республика Коми",
+    works: [
+      "Работы вблизи железной дороги и на лесных объектах",
+      "Земляные работы и планировка площадок",
+      "Монтаж и погрузка грузов",
+      "Строительство и ремонт инфраструктуры",
+    ],
+    logistics:
+      "Из Ухты и Сыктывкара технику подают в Емву по железнодорожному и автомобильному направлениям; условия подачи уточняет менеджер.",
+    nearby: ["Ухта", "Сыктывкар", "Сосногорск"],
+  },
+  "Микунь": {
+    region: "Республика Коми",
+    works: [
+      "Работы на железнодорожных и промышленных объектах",
+      "Строительство и благоустройство",
+      "Погрузка и монтаж",
+      "Земляные работы и подготовка площадок",
+    ],
+    logistics:
+      "Микунь расположен недалеко от Сыктывкара, поэтому технику здесь обычно подают из столицы региона.",
+    nearby: ["Сыктывкар", "Ухта"],
+  },
+  "Ижма": {
+    region: "Республика Коми",
+    works: [
+      "Строительство и ремонт зданий и дорог",
+      "Земляные работы и обустройство территорий",
+      "Погрузка и перемещение грузов",
+      "Перевозка сотрудников на объекты",
+    ],
+    logistics:
+      "В Ижму технику подают из Ухты или Усинска; сроки зависят от сезона и дорог, их согласует менеджер.",
+    nearby: ["Ухта", "Усинск"],
+  },
+  "Троицко-Печорск": {
+    region: "Республика Коми",
+    works: [
+      "Лесные и строительные работы",
+      "Земляные работы и подсыпка дорог",
+      "Погрузка и монтаж",
+      "Перевозка бригад по грунтовым дорогам",
+    ],
+    logistics:
+      "Технику в Троицко-Печорск подают из Печоры или Ухты, маршрут и сроки согласует менеджер.",
+    nearby: ["Печора", "Ухта"],
+  },
+  "Визинга": {
+    region: "Республика Коми",
+    works: [
+      "Строительство и ремонт зданий и дорог",
+      "Земляные работы и благоустройство",
+      "Погрузка и перемещение грузов",
+      "Лесные работы",
+    ],
+    logistics:
+      "В Визингу технику обычно подают из Сыктывкара, условия подачи уточняет менеджер.",
+    nearby: ["Сыктывкар"],
+  },
+  "Усть-Цильма": {
+    region: "Республика Коми",
+    works: [
+      "Строительство, обустройство берега и подъездов",
+      "Земляные работы и подсыпка",
+      "Погрузка и монтаж",
+      "Перевозка сотрудников на объекты",
+    ],
+    logistics:
+      "В Усть-Цильму технику подают из Печоры или Усинска; сроки зависят от сезона и состояния дорог.",
+    nearby: ["Печора", "Усинск"],
+  },
+  "Койгородок": {
+    region: "Республика Коми",
+    works: [
+      "Строительство и ремонт дорог и зданий",
+      "Земляные работы и лесные объекты",
+      "Погрузка и перемещение грузов",
+      "Благоустройство территорий",
+    ],
+    logistics:
+      "В Койгородок технику обычно подают из Сыктывкара, условия подачи уточняет менеджер.",
+    nearby: ["Сыктывкар"],
   },
 };
 
@@ -290,6 +401,14 @@ const OTHER = "в Республике Коми и НАО";
 
 function cityLinks(skip?: ServiceCityName | null, build: (c: ServiceCityName) => string = (c) => `/spetstehnika/${CITY_INFO[c].slug}`) {
   return SERVICE_CITIES.filter((c) => c !== skip).map((c) => ({ label: c, href: build(c) }));
+}
+
+// Техника этого города; если её нет, берём из соседних городов региона (подача согласуется с менеджером)
+export function nearbyVehicles(all: Vehicles, city: ServiceCityName, categorySlug?: string) {
+  const near: string[] = CITY_EXTRA[city].nearby;
+  const ofType = all.filter((v) => !categorySlug || v.category.slug === categorySlug);
+  const closeBy = ofType.filter((v) => v.city && near.includes(v.city));
+  return closeBy.length > 0 ? closeBy : ofType;
 }
 
 async function loadAll() {
@@ -461,7 +580,7 @@ export async function buildSpecPage(citySlug?: string): Promise<SeoPageModel | n
       city && here.length === 0
         ? `${city}: в каталоге пока нет собственной техники. Ниже варианты из других городов региона; условия подачи на объект согласует менеджер.`
         : undefined,
-    fallbackVehicles: city && here.length === 0 ? all.slice(0, 9) : undefined,
+    fallbackVehicles: city && here.length === 0 ? nearbyVehicles(all, city).slice(0, 9) : undefined,
     sections,
     priceTable: {
       title: city ? `Тарифы на технику ${where}` : "Стартовые тарифы по видам техники",
@@ -540,7 +659,7 @@ export async function buildGroupPage(groupSlug: string, citySlug?: string): Prom
       city && here.length === 0
         ? `${city}: в каталоге пока нет такой техники. Ниже варианты из других городов региона.`
         : undefined,
-    fallbackVehicles: city && here.length === 0 ? inGroup.slice(0, 9) : undefined,
+    fallbackVehicles: city && here.length === 0 ? nearbyVehicles(inGroup, city).slice(0, 9) : undefined,
     sections: [
       { title: "Для каких задач подходит", bullets: g.useCases },
       ...(city ? [{ title: `Типичные работы ${where}`, bullets: extra!.works }] : []),
@@ -787,7 +906,7 @@ export async function buildIntentPage(citySlug: string, intentSlug: string): Pro
       relevant.length === 0
         ? `${city}: подходящей техники в каталоге пока нет. Ниже варианты из других городов региона; условия подачи согласует менеджер.`
         : undefined,
-    fallbackVehicles: relevant.length === 0 ? all.slice(0, 9) : undefined,
+    fallbackVehicles: relevant.length === 0 ? nearbyVehicles(all, city).slice(0, 9) : undefined,
     sections,
     priceTable,
     faq,
@@ -812,17 +931,222 @@ export async function buildIntentPage(citySlug: string, intentSlug: string): Pro
   };
 }
 
-export function allSeoPaths() {
-  const cities = SERVICE_CITIES.map((c) => CITY_INFO[c].slug);
+
+// ───────── страницы «вид техники + город + запрос» ─────────
+
+export const CATEGORY_INTENTS: Record<
+  string,
+  { label: string; title: (g: string, inCity: string) => string; link: (g: string, inCity: string) => string }
+> = {
+  tseny: {
+    label: "Цена",
+    title: (g, c) => `Цена аренды ${g} ${c}: сколько стоит час и смена`,
+    link: (g, c) => `Цена аренды ${g} ${c}`,
+  },
+  srochno: {
+    label: "Срочно",
+    title: (g, c) => `Срочная аренда ${g} ${c}`,
+    link: (g, c) => `Срочная аренда ${g} ${c}`,
+  },
+  "na-smenu": {
+    label: "На смену и сутки",
+    title: (g, c) => `Аренда ${g} ${c} на смену и на сутки`,
+    link: (g, c) => `Аренда ${g} ${c} на смену и сутки`,
+  },
+};
+
+const PRICE_FACTORS: Record<string, string[]> = {
+  "avtokran-25t": ["Длина стрелы и нужный вылет", "Высота и масса поднимаемого груза", "Расстояние подачи до объекта", "Продолжительность работ"],
+  "avtokran-50t": ["Масса и габариты груза", "Требуемый вылет и высота подъёма", "Условия площадки и подъезда", "Срок аренды"],
+  "avtovyshka-agp": ["Рабочая высота и вылет люльки", "Количество точек работ", "Время на перестановки машины", "Расстояние подачи"],
+  "gusenichnyy-ekskavator": ["Объём работ и тип грунта", "Нужны ли болотные гусеницы и слани", "Состояние подъезда к площадке", "Срок аренды"],
+  buldozer: ["Площадь и объём планировки", "Состояние грунта и снега", "Расстояние подачи", "Срок аренды"],
+  "vahtovyy-avtobus": ["Маршрут и состояние дороги", "Количество рейсов и ожидание на объекте", "Число пассажиров", "Срок аренды"],
+  "legkovye-ts": ["Маршрут и протяжённость", "Количество пассажиров", "Время ожидания", "Срок аренды"],
+};
+
+export async function buildCategoryIntentPage(
+  categorySlug: string,
+  citySlug: string,
+  intentSlug: string
+): Promise<SeoPageModel | null> {
+  const content = CATEGORY_LANDING[categorySlug];
+  const intent = CATEGORY_INTENTS[intentSlug];
+  const city = cityBySlug(citySlug);
+  if (!content || !intent || !city) return null;
+  const { vehicles: all } = await loadAll();
+  const inCity = all.filter((v) => v.category.slug === categorySlug && v.city === city);
+  const near = nearbyVehicles(all, city, categorySlug);
+  const shown = inCity.length ? inCity : near;
+  const where = CITY_INFO[city].in;
+  const extra = CITY_EXTRA[city];
+  const g = content.genitive;
+  const acc = ACCUSATIVE[categorySlug] ?? g;
+  const minPrice = minPriceOf(shown);
+  const minHours = shown.length ? Math.min(...shown.map((v) => Math.max(1, v.minHours))) : null;
+  const nearNames = extra.nearby.join(", ");
+  const supply =
+    inCity.length > 0
+      ? `Сейчас ${where} в каталоге ${inCity.length} ${pluralize(inCity.length, ["вариант", "варианта", "вариантов"])}.`
+      : `Собственной техники этого вида ${where} в каталоге пока нет, подбираем из соседних городов (${nearNames}).`;
+  const common = [
+    {
+      q: `Нужна ли предоплата за аренду ${g}?`,
+      a: "Нет, онлайн-оплата при бронировании не требуется. Менеджер подтверждает бронь по телефону, оплата по договору, наличным или безналичным расчётом.",
+    },
+    {
+      q: "Как забронировать?",
+      a: "Откройте машину в каталоге, отметьте свободные даты в календаре занятости и отправьте заявку. Заявки принимаются на сайте круглосуточно.",
+    },
+  ];
+  const priceText =
+    minPrice !== null ? `от ${formatPrice(minPrice)} в час без учёта 5% НДС` : "цена по запросу";
+
+  const base = {
+    path: `/arenda/${categorySlug}/${CITY_INFO[city].slug}/${intentSlug}`,
+    eyebrow: city,
+    vehiclesTitle: `${acc[0].toUpperCase()}${acc.slice(1)} в аренду ${where}`,
+    vehicles: shown,
+    indexable: shown.length > 0,
+    breadcrumbs: [
+      { name: "Главная", href: "/" },
+      { name: `Аренда ${g}`, href: `/arenda/${categorySlug}` },
+      { name: city, href: `/arenda/${categorySlug}/${CITY_INFO[city].slug}` },
+      { name: intent.label },
+    ],
+    linkGroups: [
+      {
+        title: `Ещё про аренду ${g} ${where}`,
+        links: [
+          { label: `Аренда ${g} ${where}`, href: `/arenda/${categorySlug}/${CITY_INFO[city].slug}` },
+          ...Object.entries(CATEGORY_INTENTS)
+            .filter(([k]) => k !== intentSlug)
+            .map(([k, i]) => ({ label: i.link(g, where), href: `/arenda/${categorySlug}/${CITY_INFO[city].slug}/${k}` })),
+          { label: `Вся спецтехника ${where}`, href: `/spetstehnika/${CITY_INFO[city].slug}` },
+        ],
+      },
+      {
+        title: `${intent.label}: ${g} в соседних городах`,
+        links: extra.nearby.map((c) => ({
+          label: intent.link(g, CITY_INFO[c].in),
+          href: `/arenda/${categorySlug}/${CITY_INFO[c].slug}/${intentSlug}`,
+        })),
+      },
+    ],
+  };
+
+  if (intentSlug === "tseny") {
+    const hrs = [1, 8, 10, 12];
+    return {
+      ...base,
+      title: `${intent.title(g, where)}${minPrice !== null ? ` — от ${formatPrice(minPrice)}/час` : ""}`,
+      description: `Цена аренды ${g} ${where}: ${priceText}. Стоимость за час, смену 8 часов и 10 часов, от чего зависит цена, заявка без предоплаты.`,
+      h1: `Цена аренды ${g} ${where}`,
+      intro: [
+        `Сколько стоит аренда ${g} ${where}? ${supply} Стоимость на сайте указана за час: ${priceText}.`,
+        `Ниже показано, как складывается сумма за час, за смену и за 10 часов. Расчёт ориентировочный: итог зависит от условий и подтверждается менеджером.`,
+      ],
+      facts: {
+        title: `Стоимость аренды ${g} по времени`,
+        head: ["Срок", "Ориентировочная стоимость"],
+        rows:
+          minPrice !== null
+            ? hrs.map((h) => [h === 1 ? "1 час" : h === 8 ? "Смена 8 часов" : `${h} часов`, `от ${formatPrice(minPrice * h)}`] as [string, string])
+            : [["По запросу", "уточните у менеджера"]],
+      },
+      calculator: shown.map((v) => ({ name: v.title, href: `/vehicle/${v.slug}`, price: num(v) })),
+      sections: [
+        { title: `От чего зависит цена аренды ${g}`, bullets: PRICE_FACTORS[categorySlug] ?? ["Тип машины", "Срок аренды", "Расстояние подачи"] },
+        { title: `Для каких работ арендуют ${acc} ${where}`, bullets: extra.works.slice(0, 4) },
+      ],
+      faq: [
+        { q: `Сколько стоит час аренды ${g} ${where}?`, a: minPrice !== null ? `Стоимость начинается ${priceText}. Точную сумму для вашего объекта подтверждает менеджер.` : "Цену подтверждает менеджер после заявки." },
+        { q: "Входит ли НДС?", a: "Тарифы на сайте указаны без учёта 5% НДС; итоговую сумму с НДС называет менеджер." },
+        ...(minHours ? [{ q: "Какой минимальный срок?", a: `Минимальный срок — от ${minHours} ${minHours === 1 ? "часа" : "часов"}, значение указано в карточке машины.` }] : []),
+        ...common,
+      ],
+    };
+  }
+
+  if (intentSlug === "srochno") {
+    return {
+      ...base,
+      title: intent.title(g, where),
+      description: `Срочная аренда ${g} ${where}: ${supply} Заявка на сайте круглосуточно, менеджер перезванивает ${WORK_HOURS_TEXT}. ${priceText[0].toUpperCase()}${priceText.slice(1)}.`,
+      h1: `Срочная аренда ${g} ${where}`,
+      intro: [
+        `Нужна техника быстро? Оставьте заявку на аренду ${g} ${where}: она приходит менеджеру сразу, заявки принимаются круглосуточно. ${supply}`,
+        `Менеджер перезванивает ${WORK_HOURS_TEXT}, подтверждает наличие машины и условия подачи на объект. ${extra.logistics}`,
+      ],
+      sections: [
+        { title: "Как заказать быстро", bullets: ["Откройте нужную машину и проверьте свободные даты в календаре", "Отправьте заявку с телефоном и описанием работ", "Опишите подъезд к объекту: так проще подобрать подходящую машину", "Дождитесь звонка менеджера и подтвердите время подачи"] },
+        { title: "Что ускорит подачу", bullets: ["Точный адрес объекта и контакт ответственного", "Согласованный въезд на закрытую территорию", "Информация о массе груза или объёме работ", "Готовая площадка для установки техники"] },
+      ],
+      faq: [
+        { q: `Как быстро можно получить ${g} ${where}?`, a: "Срок зависит от наличия свободной машины, расстояния и состояния дорог. Точное время подачи называет менеджер после заявки." },
+        { q: "Работает ли заявка в нерабочее время?", a: `Да, заявки принимаются на сайте круглосуточно; менеджер перезванивает ${WORK_HOURS_TEXT}.` },
+        ...common,
+      ],
+    };
+  }
+
+  // na-smenu
+  return {
+    ...base,
+    title: intent.title(g, where),
+    description: `Аренда ${g} ${where} на смену и на сутки: ${priceText}. Как считается смена, минимальный срок, подача на объект, заявка без предоплаты.`,
+    h1: `Аренда ${g} ${where} на смену и на сутки`,
+    intro: [
+      `Аренда ${g} ${where} возможна на несколько часов, на смену и на несколько суток. ${supply}`,
+      `Оплата почасовая: вы платите за время работы, минимальный срок указан в карточке машины${minHours ? ` (от ${minHours} ${minHours === 1 ? "часа" : "часов"})` : ""}. Стоимость ${priceText}.`,
+    ],
+    facts: {
+      title: "Как выбрать срок аренды",
+      head: ["Вариант", "Когда подходит"],
+      rows: [
+        ["Несколько часов", "Разовая работа: подъём груза, одна точка, короткий рейс"],
+        ["Смена (8–12 часов)", "Рабочий день на объекте: монтаж, земляные работы, перевозка бригады"],
+        ["Несколько суток", "Длительные работы: условия и график согласуются с менеджером"],
+      ],
+    },
+    calculator: shown.map((v) => ({ name: v.title, href: `/vehicle/${v.slug}`, price: num(v) })),
+    sections: [
+      { title: "Что учесть при выборе срока", bullets: ["Время на подачу и перестановки техники", "Перерывы и простои по погоде", "Время работы оператора или водителя", "Запас на непредвиденные задержки"] },
+      { title: `Для каких работ арендуют ${acc} ${where}`, bullets: extra.works.slice(0, 4) },
+    ],
+    faq: [
+      { q: "Что считается сменой?", a: "Обычно это рабочий день 8–12 часов. Точные условия смены согласуются с менеджером при подтверждении заявки." },
+      { q: "Можно ли арендовать на несколько суток?", a: "Да, можно отметить несколько дней в календаре занятости. Условия и график при длительной аренде подтверждает менеджер." },
+      ...common,
+    ],
+  };
+}
+
+const WORK_HOURS_TEXT = "с 8:00 до 20:00";
+
+// Адреса всех SEO-страниц для карты сайта; страницы без реального предложения в регионе не включаем
+export async function getSeoPaths() {
+  const { vehicles: all } = await loadAll();
+  const cities = SERVICE_CITIES.map((c) => ({ c, slug: CITY_INFO[c].slug }));
   const groups = Object.keys(GROUP_PAGES);
+  const catSlugs = Object.keys(CATEGORY_LANDING);
+  const has = (c: ServiceCityName, cat?: string, group?: CategoryGroup) => {
+    const list = nearbyVehicles(all, c, cat);
+    return group ? list.some((v) => v.category.group === group) : list.length > 0;
+  };
   return [
     { path: "/spetstehnika", priority: 0.9 },
-    ...cities.map((c) => ({ path: `/spetstehnika/${c}`, priority: 0.8 })),
+    ...cities.map((x) => ({ path: `/spetstehnika/${x.slug}`, priority: 0.8 })),
     ...groups.map((g) => ({ path: `/tehnika/${g}`, priority: 0.8 })),
-    ...groups.flatMap((g) => cities.map((c) => ({ path: `/tehnika/${g}/${c}`, priority: 0.7 }))),
-    ...cities.flatMap((c) => Object.keys(INTENTS).map((i) => ({ path: `/spetstehnika/${c}/${i}`, priority: 0.6 }))),
-    ...Object.keys(CATEGORY_LANDING).flatMap((cat) =>
-      cities.map((c) => ({ path: `/arenda/${cat}/${c}`, priority: 0.7 }))
+    ...groups.flatMap((g) =>
+      cities.filter((x) => has(x.c, undefined, GROUP_PAGES[g].group)).map((x) => ({ path: `/tehnika/${g}/${x.slug}`, priority: 0.7 }))
+    ),
+    ...cities.flatMap((x) => Object.keys(INTENTS).map((i) => ({ path: `/spetstehnika/${x.slug}/${i}`, priority: 0.6 }))),
+    ...catSlugs.flatMap((cat) => cities.map((x) => ({ path: `/arenda/${cat}/${x.slug}`, priority: 0.7 }))),
+    ...catSlugs.flatMap((cat) =>
+      cities.filter((x) => has(x.c, cat)).flatMap((x) =>
+        Object.keys(CATEGORY_INTENTS).map((i) => ({ path: `/arenda/${cat}/${x.slug}/${i}`, priority: 0.6 }))
+      )
     ),
   ];
 }

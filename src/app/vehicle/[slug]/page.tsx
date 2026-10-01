@@ -13,6 +13,7 @@ import { VehicleIcon } from "@/components/catalog/VehicleIcon";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { getVehicleReviews } from "@/lib/reviews";
 import { vehiclePhoto } from "@/content/vehicle-photos";
+import { PartnerBlock } from "@/components/PartnerBlock";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -174,6 +175,10 @@ export default async function VehiclePage({ params }: Props) {
             count={reviewData.count}
             average={reviewData.average}
           />
+
+          {["gusenichnyy-ekskavator", "buldozer", "avtokran-25t", "avtokran-50t"].includes(vehicle.category.slug) && (
+            <PartnerBlock className="mt-6" />
+          )}
 
           <Link
             href={`/owner/${vehicle.owner.id}`}

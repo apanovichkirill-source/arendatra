@@ -3,6 +3,7 @@ import { Logo, LogoMark } from "@/components/Logo";
 import { CATEGORY_SEO } from "@/lib/seo";
 import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
 import { PHONES, WORK_HOURS } from "@/lib/contacts";
+import { PARTNER_NAME, partnerUrl } from "@/lib/partner";
 
 export function Footer() {
   return (
@@ -63,8 +64,20 @@ export function Footer() {
             ))}
           </ul>
         </nav>
+        {partnerUrl("") && (
+          <p className="mt-8 text-sm">
+            Наш второй сайт:{" "}
+            <a href={partnerUrl("", "arendatra-footer") ?? "#"} className="font-semibold text-white underline-offset-4 hover:underline">
+              {PARTNER_NAME}
+            </a>{" "}
+            — продажа сыпучих материалов и спецтехники в Республике Коми и НАО.
+          </p>
+        )}
         <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/10 pt-6">
           <p>© {new Date().getFullYear()} Арендатра. Все права защищены.</p>
+          <Link href="/karta-sayta" className="text-white/90 underline-offset-4 hover:underline">
+            Карта сайта
+          </Link>
           <Link href="/stati" className="text-white/90 underline-offset-4 hover:underline">
             Статьи
           </Link>

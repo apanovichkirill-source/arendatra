@@ -4,9 +4,9 @@ import { VehicleCard } from "@/components/catalog/VehicleCard";
 import { formatPrice, PRICING_NOTE } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
 import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
-import { CITY_EXTRA, categorySynonyms } from "@/lib/seo-pages";
+import { CATEGORY_INTENTS, CITY_EXTRA, categorySynonyms } from "@/lib/seo-pages";
 import { landingPath, pluralize, type getLandingData } from "@/lib/landing";
-import { CATEGORY_LANDING, CATEGORY_SEO } from "@/lib/seo";
+import { ACCUSATIVE, CATEGORY_LANDING, CATEGORY_SEO } from "@/lib/seo";
 import { PageHero } from "@/components/PageHero";
 
 type Data = NonNullable<Awaited<ReturnType<typeof getLandingData>>>;
@@ -76,6 +76,23 @@ export async function LandingPage({ data }: { data: Data }) {
             ]),
       ],
     },
+    ...(vehicles.length > 0 && minPrice !== null
+      ? [
+          {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: `Аренда ${content.genitive} ${where}`,
+            category: category.name,
+            offers: {
+              "@type": "AggregateOffer",
+              priceCurrency: "RUB",
+              lowPrice: String(minPrice),
+              offerCount: vehicles.length,
+              availability: "https://schema.org/InStock",
+            },
+          },
+        ]
+      : []),
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
@@ -141,7 +158,7 @@ export async function LandingPage({ data }: { data: Data }) {
       {vehicles.length > 0 && (
         <section className="mt-8">
           <h2 className="mb-4 text-xl font-bold text-brand-navy">
-            {content.genitive[0].toUpperCase() + content.genitive.slice(1)} в аренду {where}
+            {(ACCUSATIVE[category.slug] ?? content.genitive).replace(/^./, (c) => c.toUpperCase())} в аренду {where}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {vehicles.map((v) => (
@@ -201,7 +218,7 @@ export async function LandingPage({ data }: { data: Data }) {
       {city && (
         <section className="mt-10">
           <h2 className="mb-3 text-xl font-bold text-brand-navy">
-            Для каких работ арендуют {content.genitive} {where}
+            Для каких работ арендуют {ACCUSATIVE[category.slug] ?? content.genitive} {where}
           </h2>
           <ul className="list-inside list-disc space-y-1 text-gray-700">
             {CITY_EXTRA[city].works.map((w) => (
@@ -229,6 +246,29 @@ export async function LandingPage({ data }: { data: Data }) {
           ))}
         </div>
       </section>
+
+      {city && (
+        <section className="mt-10">
+          <h2 className="mb-3 text-lg font-bold text-brand-navy">Ещё про аренду {content.genitive} {where}</h2>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(CATEGORY_INTENTS).map(([k, i]) => (
+              <Link
+                key={k}
+                href={`/arenda/${category.slug}/${CITY_INFO[city].slug}/${k}`}
+                className="rounded-full border border-black/10 bg-white px-3 py-1 text-sm text-brand-blue hover:border-brand-blue"
+              >
+                {i.link(content.genitive, where)}
+              </Link>
+            ))}
+            <Link
+              href={`/spetstehnika/${CITY_INFO[city].slug}`}
+              className="rounded-full border border-black/10 bg-white px-3 py-1 text-sm text-brand-blue hover:border-brand-blue"
+            >
+              Вся спецтехника {where}
+            </Link>
+          </div>
+        </section>
+      )}
 
       {(otherCities.length > 0 || otherCategories.length > 0) && (
         <section className="mt-10">
