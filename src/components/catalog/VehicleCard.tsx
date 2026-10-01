@@ -3,6 +3,8 @@ import type { CategoryGroup, Prisma } from "@prisma/client";
 import { formatPrice } from "@/lib/format";
 import { VehicleIcon } from "./VehicleIcon";
 import { LogoMark } from "@/components/Logo";
+import Image from "next/image";
+import { vehiclePhoto } from "@/content/vehicle-photos";
 
 export function VehicleCard({
   slug,
@@ -24,6 +26,7 @@ export function VehicleCard({
   attributes?: Record<string, string> | null;
 }) {
   const specs = attributes ? Object.entries(attributes).slice(0, 2) : [];
+  const photo = vehiclePhoto(slug);
 
   return (
     <Link
@@ -31,8 +34,26 @@ export function VehicleCard({
       className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition hover:-translate-y-1 hover:border-brand-blue hover:shadow-xl hover:shadow-brand-blue/10"
     >
       <div className="bg-blueprint-light relative flex aspect-[16/10] items-center justify-center overflow-hidden bg-brand-blue-light text-brand-blue">
-        <LogoMark className="pointer-events-none absolute -bottom-4 -right-3 h-3/4 w-auto opacity-[0.12] grayscale transition group-hover:opacity-25 group-hover:grayscale-0" />
-        <VehicleIcon group={categoryGroup} className="relative h-16 w-16 transition group-hover:scale-110" />
+        {photo ? (
+          <>
+            <Image
+              src={photo.src}
+              alt={photo.alt}
+              width={600}
+              height={375}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px"
+              className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-105"
+            />
+            <span className="absolute left-2 top-2 rounded-md bg-black/55 px-2 py-0.5 text-[10px] font-medium text-white">
+              Иллюстрация
+            </span>
+          </>
+        ) : (
+          <>
+            <LogoMark className="pointer-events-none absolute -bottom-4 -right-3 h-3/4 w-auto opacity-[0.12] grayscale transition group-hover:opacity-25 group-hover:grayscale-0" />
+            <VehicleIcon group={categoryGroup} className="relative h-16 w-16 transition group-hover:scale-110" />
+          </>
+        )}
       </div>
       <div className="flex flex-1 flex-col p-4">
         <span className="mb-2 inline-block w-fit rounded-full bg-brand-blue-light px-2.5 py-0.5 text-xs font-medium text-brand-blue">
