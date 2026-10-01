@@ -28,6 +28,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.8,
     })),
+    { url: `${SITE_URL}/kontakty`, changeFrequency: "monthly" as const, priority: 0.6 },
+    { url: `${SITE_URL}/o-nas`, changeFrequency: "monthly" as const, priority: 0.6 },
     { url: `${SITE_URL}/stati`, changeFrequency: "daily" as const, priority: 0.7 },
     ...getPublishedArticles().map((a) => ({
       url: `${SITE_URL}/stati/${a.slug}`,

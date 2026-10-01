@@ -5,6 +5,7 @@ import { PageHero } from "@/components/PageHero";
 import { formatPrice, PRICING_NOTE } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
 import type { SeoPageModel } from "@/lib/seo-pages";
+import { RentalCalculator } from "@/components/landing/RentalCalculator";
 
 function Cards({ vehicles }: { vehicles: SeoPageModel["vehicles"] }) {
   return (
@@ -140,6 +141,8 @@ export async function SeoLanding({ page }: { page: SeoPageModel }) {
             <p className="mt-2 text-xs text-gray-400">{PRICING_NOTE}</p>
           </section>
         )}
+
+        {page.priceTable && <RentalCalculator rows={page.priceTable.rows} />}
 
         {page.sections.map((s) => (
           <section key={s.title} className="mt-10">

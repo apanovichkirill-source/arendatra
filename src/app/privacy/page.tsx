@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/PageHero";
+import { PHONES } from "@/lib/contacts";
 
 export const metadata: Metadata = {
   title: "Политика конфиденциальности",
@@ -94,14 +95,15 @@ export default function PrivacyPage() {
           <p>
             Вы вправе в любой момент запросить информацию о своих персональных данных,
             потребовать их уточнения, блокировки или удаления, а также отозвать согласие на
-            обработку — для этого напишите нам на{" "}
-            <a href="mailto:info@arendatra.ru" className="text-brand-blue hover:underline">
-              info@arendatra.ru
-            </a>{" "}
-            или позвоните по телефону{" "}
-            <a href="tel:+74951234567" className="text-brand-blue hover:underline">
-              +7 495 123-45-67
-            </a>
+            обработку — для этого оставьте обращение через форму заявки на сайте или позвоните по телефону{" "}
+            {PHONES.map((ph, idx) => (
+              <span key={ph.tel}>
+                {idx > 0 && ", "}
+                <a href={`tel:${ph.tel}`} className="text-brand-blue hover:underline">
+                  {ph.display}
+                </a>
+              </span>
+            ))}
             .
           </p>
         </section>

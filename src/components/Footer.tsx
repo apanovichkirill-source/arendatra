@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo, LogoMark } from "@/components/Logo";
 import { CATEGORY_SEO } from "@/lib/seo";
 import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
+import { PHONES, WORK_HOURS } from "@/lib/contacts";
 
 export function Footer() {
   return (
@@ -15,6 +16,17 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-[1.2fr_1fr]">
           <div>
             <Logo onDark />
+            <p className="mt-3 text-white/90">
+              {PHONES.map((p, i) => (
+                <span key={p.tel}>
+                  {i > 0 && " · "}
+                  <a href={`tel:${p.tel}`} className="font-semibold hover:text-white">
+                    {p.display}
+                  </a>
+                </span>
+              ))}
+              <span className="block text-xs text-white/60">Звонки {WORK_HOURS}</span>
+            </p>
             <p className="mt-4 max-w-md leading-relaxed">
               Аренда грузоподъёмной, землеройной техники и пассажирского транспорта в
               Республике Коми и Ненецком автономном округе.
@@ -55,6 +67,12 @@ export function Footer() {
           <p>© {new Date().getFullYear()} Арендатра. Все права защищены.</p>
           <Link href="/stati" className="text-white/90 underline-offset-4 hover:underline">
             Статьи
+          </Link>
+          <Link href="/o-nas" className="text-white/90 underline-offset-4 hover:underline">
+            О сервисе
+          </Link>
+          <Link href="/kontakty" className="text-white/90 underline-offset-4 hover:underline">
+            Контакты
           </Link>
           <Link href="/privacy" className="text-white/90 underline-offset-4 hover:underline">
             Политика конфиденциальности

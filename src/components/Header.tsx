@@ -8,6 +8,7 @@ const NAV = [
   { href: "/catalog?group=EARTHMOVING", label: "Землеройная" },
   { href: "/catalog?group=PASSENGER", label: "Перевозки" },
   { href: "/stati", label: "Статьи" },
+  { href: "/kontakty", label: "Контакты" },
 ];
 
 export async function Header() {

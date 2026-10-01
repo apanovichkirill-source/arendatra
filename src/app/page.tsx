@@ -8,6 +8,7 @@ import { getLandingCombos, landingPath } from "@/lib/landing";
 import { CATEGORY_SEO } from "@/lib/seo";
 import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
 import { LogoMark } from "@/components/Logo";
+import { CLIENTS, PHONES, WORK_HOURS } from "@/lib/contacts";
 import { VehicleIcon } from "@/components/catalog/VehicleIcon";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
@@ -206,6 +207,17 @@ export default async function HomePage() {
         </section>
       )}
 
+      <section className="mx-auto max-w-6xl px-4 pt-4 pb-2">
+        <div className="rounded-2xl border border-black/10 bg-white p-6">
+          <h2 className="text-xl font-extrabold text-brand-navy">Работаем с предприятиями нефтегазовой отрасли</h2>
+          <p className="mt-2 max-w-3xl text-sm text-gray-600">
+            Подаём технику и транспорт для заказчиков отрасли в Республике Коми и НАО, в том числе{" "}
+            {CLIENTS.join(", ")}. Вся техника с документами, обученный персонал, оплата наличным и
+            безналичным расчётом, работа по договору.
+          </p>
+        </div>
+      </section>
+
       <section className="relative mx-auto max-w-6xl px-4 py-12">
         <h2 className="mb-8 text-2xl font-extrabold text-brand-navy">Как это работает</h2>
         <div className="relative grid gap-4 sm:grid-cols-3">
@@ -247,12 +259,18 @@ export default async function HomePage() {
                 Свяжитесь с менеджером — подберём технику и посчитаем итоговую стоимость.
               </p>
             </div>
-            <a
-              href="tel:+74951234567"
-              className="shrink-0 rounded-lg bg-brand-orange px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-orange-dark"
-            >
-              Позвонить: +7 495 123-45-67
-            </a>
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              {PHONES.map((ph) => (
+                <a
+                  key={ph.tel}
+                  href={`tel:${ph.tel}`}
+                  className="shrink-0 rounded-lg bg-brand-orange px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-brand-orange-dark"
+                >
+                  Позвонить: {ph.display}
+                </a>
+              ))}
+            </div>
+            <p className="text-xs text-white/60">Звонки {WORK_HOURS}. Заявки на сайте — круглосуточно.</p>
           </div>
         </div>
       </section>

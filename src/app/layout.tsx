@@ -11,6 +11,7 @@ import { YandexMetrika } from "@/components/YandexMetrika";
 import { getBuyerSession } from "@/lib/session";
 import { SITE_URL } from "@/lib/site";
 import { SERVICE_CITIES } from "@/lib/cities";
+import { PHONES } from "@/lib/contacts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,7 +52,15 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     url: SITE_URL,
     logo: `${SITE_URL}/logo-icon.png`,
     image: `${SITE_URL}/opengraph-image.png`,
-    telephone: "+7-495-123-45-67",
+    telephone: PHONES.map((p) => p.tel),
+    openingHours: "Mo-Su 08:00-20:00",
+    contactPoint: PHONES.map((p) => ({
+      "@type": "ContactPoint",
+      telephone: p.tel,
+      contactType: "customer service",
+      areaServed: "RU",
+      availableLanguage: "ru",
+    })),
     priceRange: "₽₽",
     areaServed: SERVICE_CITIES.map((city) => ({
       "@type": "City",
