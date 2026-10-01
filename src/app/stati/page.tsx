@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
+import { ARTICLE_IMAGES } from "@/content/article-images";
 import { formatArticleDate, getPublishedArticles, readingMinutes } from "@/lib/articles";
 
 export const metadata: Metadata = {
@@ -26,8 +28,19 @@ export default function ArticlesPage() {
             <Link
               key={a.slug}
               href={`/stati/${a.slug}`}
-              className="group flex flex-col rounded-2xl border border-black/10 bg-white p-5 transition hover:-translate-y-1 hover:border-brand-blue hover:shadow-lg hover:shadow-brand-blue/10"
+              className="group flex flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition hover:-translate-y-1 hover:border-brand-blue hover:shadow-lg hover:shadow-brand-blue/10"
             >
+              {ARTICLE_IMAGES[a.slug] && (
+                <Image
+                  src={ARTICLE_IMAGES[a.slug].src}
+                  alt={ARTICLE_IMAGES[a.slug].alt}
+                  width={600}
+                  height={400}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px"
+                  className="aspect-[3/2] w-full object-cover"
+                />
+              )}
+              <div className="flex flex-1 flex-col p-5">
               <span className="text-xs font-semibold uppercase tracking-wide text-brand-orange">
                 {a.topic}
               </span>
@@ -38,6 +51,7 @@ export default function ArticlesPage() {
               <p className="mt-4 text-xs text-gray-400">
                 {formatArticleDate(a.publishedAt)} · {readingMinutes(a)} мин чтения
               </p>
+              </div>
             </Link>
           ))}
         </div>

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { PageHero } from "@/components/PageHero";
 import { SITE_URL } from "@/lib/site";
+import { ARTICLE_IMAGES } from "@/content/article-images";
 import {
   formatArticleDate,
   getArticle,
@@ -30,6 +32,7 @@ export default async function ArticlePage({ params }: Props) {
   const a = getArticle(slug);
   if (!a) notFound();
   const nonce = (await headers()).get("x-nonce") || undefined;
+  const image = ARTICLE_IMAGES[a.slug];
   const more = getPublishedArticles()
     .filter((x) => x.slug !== a.slug)
     .slice(0, 3);
@@ -40,6 +43,7 @@ export default async function ArticlePage({ params }: Props) {
     headline: a.title,
     description: a.description,
     datePublished: a.publishedAt,
+    ...(image ? { image: `${SITE_URL}${image.src}` } : {}),
     dateModified: a.publishedAt,
     inLanguage: "ru-RU",
     mainEntityOfPage: `${SITE_URL}/stati/${a.slug}`,
@@ -63,6 +67,33 @@ export default async function ArticlePage({ params }: Props) {
           nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {image && (
+          <figure className="mb-6">
+            <Image
+              src={image.src}
+              alt={image.alt}
+              width={1200}
+              height={900}
+              priority
+              sizes="(max-width: 768px) 100vw, 768px"
+              className="h-auto w-full rounded-2xl object-cover"
+            />
+            <figcaption className="mt-2 text-xs text-gray-400">
+              Иллюстративное фото. Автор: {image.author}, {image.license}
+              {image.licenseUrl && (
+                <>
+                  {" "}
+                  (<a href={image.licenseUrl} rel="noopener noreferrer" target="_blank" className="underline">лицензия</a>)
+                </>
+              )}
+              . Источник:{" "}
+              <a href={image.source} rel="noopener noreferrer" target="_blank" className="underline">
+                Wikimedia Commons
+              </a>
+              .
+            </figcaption>
+          </figure>
+        )}
         <div className="space-y-4 text-gray-700">
           {a.body.map((b, i) => {
             if (b.type === "h2")
