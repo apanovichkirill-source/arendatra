@@ -15,7 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       select: { slug: true, updatedAt: true },
     }),
     prisma.owner.findMany({
-      where: { isActive: true },
+      where: { isActive: true, vehicles: { some: { isActive: true } } },
       select: { id: true, updatedAt: true },
     }),
   ]);
