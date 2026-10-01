@@ -7,6 +7,7 @@ const NAV = [
   { href: "/catalog?group=LIFTING", label: "Грузоподъёмная" },
   { href: "/catalog?group=EARTHMOVING", label: "Землеройная" },
   { href: "/catalog?group=PASSENGER", label: "Перевозки" },
+  { href: "/stati", label: "Статьи" },
 ];
 
 export async function Header() {

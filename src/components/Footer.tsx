@@ -53,6 +53,9 @@ export function Footer() {
         </nav>
         <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/10 pt-6">
           <p>© {new Date().getFullYear()} Арендатра. Все права защищены.</p>
+          <Link href="/stati" className="text-white/90 underline-offset-4 hover:underline">
+            Статьи
+          </Link>
           <Link href="/privacy" className="text-white/90 underline-offset-4 hover:underline">
             Политика конфиденциальности
           </Link>
