@@ -13,7 +13,8 @@ export function proxy(request: NextRequest) {
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""};
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: https://mc.yandex.ru;
-    connect-src 'self' https://mc.yandex.ru https://mc.yandex.com;
+    connect-src 'self' https://mc.yandex.ru https://mc.yandex.com wss://mc.yandex.ru;
+    frame-src https://mc.yandex.ru https://mc.yandex.com;
     font-src 'self';
     object-src 'none';
     base-uri 'self';
