@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
+import { CallbackForm } from "@/components/CallbackForm";
 import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
 import { ADDRESS, MESSENGER, PHONES, WORK_HOURS } from "@/lib/contacts";
 
@@ -51,6 +52,14 @@ export default function ContactsPage() {
             </Link>
           </section>
         </div>
+
+        <section id="callback" className="mt-4 scroll-mt-24 rounded-2xl border border-black/10 bg-white p-6">
+          <h2 className="text-lg font-bold text-brand-navy">Перезвоним сами</h2>
+          <p className="mt-1 mb-4 text-sm text-gray-600">
+            Оставьте номер — менеджер перезвонит {WORK_HOURS} и подберёт технику под задачу.
+          </p>
+          <CallbackForm />
+        </section>
 
         <section className="mt-4 rounded-2xl border border-black/10 bg-white p-6">
           <h2 className="text-lg font-bold text-brand-navy">Адрес базы</h2>

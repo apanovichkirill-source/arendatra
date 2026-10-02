@@ -26,6 +26,47 @@ const fmt = (d: Date) =>
     timeZone: "Europe/Moscow",
   }).format(d);
 
+export type CallbackNotice = {
+  name: string | null;
+  phone: string;
+  comment: string | null;
+  page: string | null;
+};
+
+// Заявка «Перезвоните мне» — только письмо менеджеру, в базу не пишется
+export async function notifyCallback(c: CallbackNotice) {
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, NOTIFY_EMAIL } = process.env;
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !NOTIFY_EMAIL) {
+    console.warn("Заявка на обратный звонок без отправки письма (SMTP не настроен)", c.phone);
+    return;
+  }
+  try {
+    const port = Number(SMTP_PORT) || 465;
+    const transport = nodemailer.createTransport({
+      host: SMTP_HOST,
+      port,
+      secure: port === 465,
+      auth: { user: SMTP_USER, pass: SMTP_PASS },
+    });
+    await transport.sendMail({
+      from: `Арендатра <${SMTP_USER}>`,
+      to: NOTIFY_EMAIL,
+      subject: `Перезвоните клиенту: ${c.phone}`,
+      text: [
+        "Клиент просит перезвонить.",
+        "",
+        `Имя: ${c.name || "не указано"}`,
+        `Телефон: ${c.phone}`,
+        `Что нужно: ${c.comment || "—"}`,
+        `Страница: ${c.page || "—"}`,
+        `Время заявки: ${fmt(new Date())} (МСК)`,
+      ].join("\n"),
+    });
+  } catch (err) {
+    console.error("Не удалось отправить заявку на обратный звонок", err);
+  }
+}
+
 export async function notifyNewBooking(b: BookingNotice) {
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, NOTIFY_EMAIL } = process.env;
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !NOTIFY_EMAIL) return;

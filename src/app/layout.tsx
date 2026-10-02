@@ -5,6 +5,7 @@ import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CookieBanner } from "@/components/CookieBanner";
+import { MobileCallBar } from "@/components/MobileCallBar";
 import { CityPrompt } from "@/components/CityPrompt";
 import { GeoCapture } from "@/components/GeoCapture";
 import { YandexMetrika } from "@/components/YandexMetrika";
@@ -80,7 +81,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang="ru"
       className={`${geistSans.variable} ${display.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col pb-16 sm:pb-0">
         <script
           type="application/ld+json"
           nonce={nonce}
@@ -91,6 +92,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <CityPrompt />
         <main className="flex-1">{children}</main>
         <Footer />
+        <MobileCallBar />
         <CookieBanner />
         <YandexMetrika />
         {buyerSession && <GeoCapture />}

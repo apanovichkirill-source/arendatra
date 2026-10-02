@@ -3,7 +3,9 @@ import Link from "next/link";
 import { getVehicles, getCities, getCategories } from "@/lib/vehicles";
 import { VehicleCard } from "@/components/catalog/VehicleCard";
 import { CategoryPicker } from "@/components/catalog/CategoryPicker";
-import { PRICING_NOTE } from "@/lib/format";
+import { headers } from "next/headers";
+import { PRICING_NOTE, formatPrice } from "@/lib/format";
+import { CallbackForm } from "@/components/CallbackForm";
 import { getLandingCombos, landingPath } from "@/lib/landing";
 import { CATEGORY_SEO } from "@/lib/seo";
 import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
@@ -33,24 +35,83 @@ const GROUPS = [
 ] as const;
 
 const FACTS = [
-  { value: "9", label: "городов региона" },
+  { value: String(SERVICE_CITIES.length), label: "городов Коми и НАО" },
   { value: "0 ₽", label: "предоплата онлайн" },
-  { value: "от 1 ч", label: "почасовая аренда" },
+  { value: "от 4 ч", label: "почасовая аренда" },
   { value: "24/7", label: "заявки на сайте" },
+];
+
+// Задачи, с которыми к нам приходят заказчики, и что мы для этого делаем
+const NEEDS = [
+  {
+    need: "Технику нужно найти быстро, без обзвона",
+    answer: "Каталог с ценами и календарём занятости: видно, какая машина свободна на ваши даты. Если нужной нет — менеджер подберёт замену.",
+  },
+  {
+    need: "Важно, чтобы не подвели на объекте",
+    answer: "Работаем по договору, вся техника с документами, на машинах обученный персонал. Сроки подачи согласуем до выезда.",
+  },
+  {
+    need: "Бухгалтерии нужны документы",
+    answer: "Договор, счёт и закрывающие документы. Оплата наличным или безналичным расчётом, тарифы — без учёта 5% НДС.",
+  },
+  {
+    need: "Нужна разная техника на один объект",
+    answer: "Автокраны 25 и 50 т, автовышки, экскаваторы, бульдозеры, вахтовые автобусы и легковой транспорт — в одном месте.",
+  },
+  {
+    need: "Платить только за реальную работу",
+    answer: "Почасовая аренда без предоплаты на сайте. Минимальный заказ — 4–8 часов в зависимости от машины.",
+  },
+  {
+    need: "Объект на севере, далеко от дорог",
+    answer: "База в Усинске (пгт Парма), вездеходные шасси 6×6, болотные гусеницы и слани для слабых грунтов. Работаем по Коми и НАО.",
+  },
 ];
 
 const STEPS = [
   {
-    title: "Выберите транспорт",
-    description: "Отфильтруйте каталог по датам, городу и цене — увидите только свободные варианты",
+    title: "Выберите технику",
+    description: "Отфильтруйте каталог по городу, датам и цене — увидите только свободные машины",
   },
   {
-    title: "Забронируйте даты",
-    description: "Отметьте нужный период в календаре занятости и оставьте заявку",
+    title: "Оставьте заявку",
+    description: "Отметьте даты в календаре или закажите обратный звонок — заявки принимаем круглосуточно",
   },
   {
-    title: "Дождитесь подтверждения",
-    description: "Менеджер свяжется с вами по телефону, оплата — без предоплаты онлайн",
+    title: "Согласуйте детали",
+    description: "Менеджер перезвонит, уточнит объект, подачу и оплату, подтвердит бронь",
+  },
+  {
+    title: "Техника на объекте",
+    description: "Машина приезжает в согласованное время, по итогам — акт по отработанным часам",
+  },
+];
+
+const FAQ = [
+  {
+    q: "Сколько стоит аренда спецтехники?",
+    a: "Цена указана в карточке каждой машины за час работы, без учёта 5% НДС. Итог зависит от количества часов и условий подачи на объект — менеджер назовёт точную сумму до начала работ.",
+  },
+  {
+    q: "Какой минимальный заказ?",
+    a: "Для спецтехники — 8 часов, для вахтовых автобусов и легкового транспорта — 4 часа. Сверх минимума оплата идёт по отработанным часам.",
+  },
+  {
+    q: "Нужна ли предоплата?",
+    a: "Нет, бронирование на сайте без предоплаты. Порядок оплаты фиксируется в договоре: наличный или безналичный расчёт.",
+  },
+  {
+    q: "Работаете с организациями по договору?",
+    a: "Да. Заключаем договор, выставляем счёт и предоставляем закрывающие документы. Работаем с предприятиями нефтегазовой отрасли Коми и НАО.",
+  },
+  {
+    q: "Как быстро подадите технику?",
+    a: "Зависит от того, где свободная машина и где ваш объект. С базы в Усинске подаём по Усинску, Парме и на промыслы района без долгой перегонки; сроки подачи в другие города менеджер называет при заявке.",
+  },
+  {
+    q: "Кто управляет техникой?",
+    a: "На машинах работает обученный персонал. Условия по оператору или водителю для конкретной машины менеджер подтверждает при заявке.",
   },
 ];
 
@@ -62,6 +123,24 @@ export default async function HomePage() {
     getLandingCombos(),
   ]);
   const featured = vehicles.slice(0, 6);
+  // Минимальная ставка в группе — для подписи «от … ₽/ч» на плитке
+  const minPrice = (group: string) => {
+    const prices = vehicles
+      .filter((v) => v.category.group === group && v.pricePerHour != null)
+      .map((v) => Number(String(v.pricePerHour)))
+      .filter((n) => Number.isFinite(n) && n > 0);
+    return prices.length ? Math.min(...prices) : null;
+  };
+  const nonce = (await headers()).get("x-nonce") || undefined;
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
   const categoryGroups = GROUPS.map((g) => ({
     group: g.group,
     categories: categories
@@ -142,6 +221,11 @@ export default async function HomePage() {
               </span>
               <h2 className="mt-4 text-lg font-bold text-brand-navy">{g.title}</h2>
               <p className="mt-1 text-sm text-gray-500">{g.description}</p>
+              {minPrice(g.group) !== null && (
+                <p className="mt-3 text-sm font-semibold text-brand-navy">
+                  от {formatPrice(minPrice(g.group))}/ч
+                </p>
+              )}
               <span className="mt-4 inline-block text-sm font-semibold text-brand-blue transition group-hover:translate-x-1">
                 Смотреть →
               </span>
@@ -176,6 +260,19 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <section className="mx-auto max-w-6xl px-4 py-10">
+        <h2 className="text-2xl font-extrabold text-brand-navy">Когда нам звонят</h2>
+        <p className="mt-1 text-sm text-gray-500">Задачи заказчиков и то, как мы их закрываем</p>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {NEEDS.map((n) => (
+            <div key={n.need} className="rounded-2xl border border-black/10 bg-white p-5">
+              <h3 className="font-bold text-brand-navy">{n.need}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-gray-600">{n.answer}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="mx-auto max-w-6xl px-4 py-10">
         <h2 className="mb-4 text-2xl font-extrabold text-brand-navy">Часто ищут</h2>
@@ -243,9 +340,9 @@ export default async function HomePage() {
 
       <section className="relative mx-auto max-w-6xl px-4 py-12">
         <h2 className="mb-8 text-2xl font-extrabold text-brand-navy">Как это работает</h2>
-        <div className="relative grid gap-4 sm:grid-cols-3">
+        <div className="relative grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div
-            className="absolute left-[16%] right-[16%] top-9 hidden border-t-2 border-dashed border-brand-blue/25 sm:block"
+            className="absolute left-[12%] right-[12%] top-9 hidden border-t-2 border-dashed border-brand-blue/25 lg:block"
             aria-hidden
           />
           {STEPS.map((s, i) => (
@@ -263,7 +360,29 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-16">
+      <section className="mx-auto max-w-6xl px-4 pb-12">
+        <h2 className="mb-4 text-2xl font-extrabold text-brand-navy">Вопросы и ответы</h2>
+        <script
+          type="application/ld+json"
+          nonce={nonce}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+        <div className="divide-y divide-black/10 rounded-2xl border border-black/10 bg-white">
+          {FAQ.map((f) => (
+            <details key={f.q} className="group p-5">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-brand-navy">
+                {f.q}
+                <span className="text-brand-blue transition group-open:rotate-45" aria-hidden>
+                  +
+                </span>
+              </summary>
+              <p className="mt-2 text-sm leading-relaxed text-gray-600">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <section id="callback" className="mx-auto max-w-6xl scroll-mt-24 px-4 pb-16">
         <div className="relative overflow-hidden rounded-3xl bg-brand-navy p-8 sm:p-10">
           <div className="bg-blueprint absolute inset-0" aria-hidden />
           <div
@@ -294,6 +413,10 @@ export default async function HomePage() {
               ))}
             </div>
             <p className="text-xs text-white/60">Звонки {WORK_HOURS}. Заявки на сайте — круглосуточно.</p>
+            <div className="w-full max-w-xl border-t border-white/15 pt-5">
+              <p className="mb-3 text-sm font-semibold text-white">Или оставьте номер — перезвоним сами</p>
+              <CallbackForm onDark />
+            </div>
           </div>
         </div>
       </section>
