@@ -11,7 +11,7 @@ import { YandexMetrika } from "@/components/YandexMetrika";
 import { getBuyerSession } from "@/lib/session";
 import { SITE_URL } from "@/lib/site";
 import { SERVICE_CITIES } from "@/lib/cities";
-import { PHONES } from "@/lib/contacts";
+import { ADDRESS, PHONES } from "@/lib/contacts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,6 +62,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       availableLanguage: "ru",
     })),
     priceRange: "₽₽",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: ADDRESS.street,
+      addressLocality: `${ADDRESS.locality}, ${ADDRESS.city}`,
+      addressRegion: ADDRESS.region,
+      addressCountry: "RU",
+    },
     areaServed: SERVICE_CITIES.map((city) => ({
       "@type": "City",
       name: city,

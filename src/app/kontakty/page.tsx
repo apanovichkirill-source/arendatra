@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
 import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
-import { MESSENGER, PHONES, WORK_HOURS } from "@/lib/contacts";
+import { ADDRESS, MESSENGER, PHONES, WORK_HOURS } from "@/lib/contacts";
 
 export const metadata: Metadata = {
   title: "Контакты — аренда спецтехники в Коми и НАО",
-  description: `Телефоны менеджера ${PHONES.map((p) => p.display).join(", ")}, ${WORK_HOURS}. Заявки на сайте принимаются круглосуточно. Работаем в Республике Коми и НАО.`,
+  description: `Телефоны менеджера ${PHONES.map((p) => p.display).join(", ")}, ${WORK_HOURS}. База: ${ADDRESS.short}. Заявки на сайте принимаются круглосуточно. Работаем в Республике Коми и НАО.`,
   alternates: { canonical: "/kontakty" },
 };
 
@@ -51,6 +51,23 @@ export default function ContactsPage() {
             </Link>
           </section>
         </div>
+
+        <section className="mt-4 rounded-2xl border border-black/10 bg-white p-6">
+          <h2 className="text-lg font-bold text-brand-navy">Адрес базы</h2>
+          <p className="mt-2 text-gray-700">{ADDRESS.full}</p>
+          <p className="mt-2 text-sm text-gray-600">
+            Отсюда техника выходит на объекты Усинского района, промыслы и площадки по всей
+            Республике Коми и НАО. Перед приездом позвоните менеджеру.
+          </p>
+          <a
+            href={`https://yandex.ru/maps/?text=${encodeURIComponent(ADDRESS.full)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-block text-sm font-semibold text-brand-blue hover:underline"
+          >
+            Открыть на Яндекс Картах
+          </a>
+        </section>
 
         <section className="mt-8">
           <h2 className="mb-3 text-xl font-bold text-brand-navy">Условия работы</h2>

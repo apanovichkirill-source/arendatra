@@ -2,6 +2,7 @@ import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { SERVICE_CITIES } from "@/lib/cities";
+import { BASE_CITY } from "@/lib/contacts";
 import type { CategoryGroup, Prisma } from "@prisma/client";
 
 const ACTIVE_BOOKING_STATUSES = ["NEW", "CONFIRMED"] as const;
@@ -66,11 +67,13 @@ async function queryVehicles(filters: VehicleFilters) {
     };
   }
 
-  return prisma.vehicle.findMany({
+  const list = await prisma.vehicle.findMany({
     where,
     include: { category: true, owner: true },
     orderBy: { createdAt: "desc" },
   });
+  // Техника с базы (Усинск) — первой; sort стабильный, остальной порядок не меняется
+  return list.sort((a, b) => Number(b.city === BASE_CITY) - Number(a.city === BASE_CITY));
 }
 
 // Список без фильтра по датам не зависит от броней — кэшируем между запросами.
