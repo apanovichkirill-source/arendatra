@@ -29,7 +29,10 @@ services:
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
       NOTIFY_EMAIL: ${NOTIFY_EMAIL:-}
+      TENDERS_EMAIL: ${TENDERS_EMAIL:-}
       PARTNER_URL: ${PARTNER_URL:-}
+    volumes:
+      - tenders:/app/data/tenders
 
   caddy:
     image: caddy:2
@@ -49,3 +52,4 @@ volumes:
   pgdata:
   caddy_data:
   caddy_config:
+  tenders:

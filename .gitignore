@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# отчёты мониторинга тендеров (scripts/tenders.mjs)
+/data/
+
 # claude code local settings
 .claude/settings.local.json
 
