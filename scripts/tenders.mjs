@@ -79,16 +79,17 @@ const dateRu = (s) => (s ? new Date(s).toLocaleDateString("ru-RU", { timeZone: "
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
 let lastCall = 0;
-async function api(p, params = {}) {
+// ГосПлан на тяжёлых запросах рвёт соединение через ~60 с — долго ждать и много раз повторять бесполезно
+async function api(p, params = {}, tries = 4) {
   const q = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) for (const x of [].concat(v)) if (x != null) q.append(k, String(x));
   const url = `${API}${p}${q.size ? `?${q}` : ""}`;
-  for (let attempt = 0; attempt < 6; attempt++) {
+  for (let attempt = 0; attempt < tries; attempt++) {
     const wait = lastCall + API_PAUSE - Date.now();
     if (wait > 0) await sleep(wait);
     lastCall = Date.now();
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(90_000), headers: { Accept: "application/json" } });
+      const res = await fetch(url, { signal: AbortSignal.timeout(45_000), headers: { Accept: "application/json" } });
       if (res.status === 429) {
         await sleep((Number(res.headers.get("retry-after")) || 30) * 1000);
         continue;
@@ -98,7 +99,7 @@ async function api(p, params = {}) {
       return await res.json();
     } catch (err) {
       console.warn(`  ${p}: ${err.cause?.code ?? err.message} (попытка ${attempt + 1})`);
-      await sleep(5000 * (attempt + 1));
+      await sleep(3000 * (attempt + 1));
     }
   }
   throw new Error(`ГосПлан не отвечает: ${url}`);
@@ -338,13 +339,16 @@ async function contactsFromEis(contract) {
 }
 
 const orgCache = {};
+let orgFails = 0;
 async function orgInfo(inn, law) {
   if (!inn) return null;
   if (orgCache[inn] !== undefined) return orgCache[inn];
+  if (orgFails >= 3) return null;
   const ep = law === "223-ФЗ" ? "/fz223/organizations" : "/fz44/organizations";
   let info = null;
   try {
-    const res = await api(ep, { inn, limit: 1 });
+    const res = await api(ep, { inn, limit: 1 }, 2);
+    orgFails = 0;
     const rec = Array.isArray(res) ? res[0] : res;
     if (rec) {
       const p = parties({ org: rec }, /^org$/)[0];
@@ -352,6 +356,7 @@ async function orgInfo(inn, law) {
     }
   } catch (err) {
     console.warn(`  организация ${inn}: ${err.message}`);
+    orgFails++;
     return null; // не кешируем сбой — попробуем в следующий раз
   }
   orgCache[inn] = info;
@@ -485,19 +490,24 @@ const winners = contracts
   .slice(0, 40);
 
 // Контакты победителей: полный документ контракта, затем карточка ЕИС
+// Если документы подряд не отдаются, дальше их не просим (иначе запуск растягивается на часы)
 let enriched = 0;
+let docFails = 0;
 for (const c of winners) {
   const needs = () => !c.suppliers.length || c.suppliers.every((s) => !s.phones.length && !s.emails.length);
-  if (needs() && enriched < MAX_ENRICH) {
+  if (needs() && enriched < MAX_ENRICH && docFails < 3) {
     enriched++;
     try {
-      const doc = await api(`${c.endpoint}/${c.number}/contract`);
+      const doc = await api(`${c.endpoint}/${c.number}/contract`, {}, 2);
+      docFails = 0;
       if (doc) {
         c.suppliers = mergeParty([...c.suppliers, ...parties(doc, SUPPLIER_ROLE)]);
         if (!c.subject) c.subject = classify(doc).subject;
       }
     } catch (err) {
+      docFails++;
       console.warn(`  контракт ${c.number}: ${err.message}`);
+      if (docFails === 3) console.warn("  ГосПлан не отдаёт документы контрактов — контакты берём из карточек ЕИС");
     }
   }
   if (needs()) {
