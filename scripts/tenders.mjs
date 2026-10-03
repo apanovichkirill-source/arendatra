@@ -88,7 +88,7 @@ async function api(p, params = {}) {
     if (wait > 0) await sleep(wait);
     lastCall = Date.now();
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(60_000), headers: { Accept: "application/json" } });
+      const res = await fetch(url, { signal: AbortSignal.timeout(90_000), headers: { Accept: "application/json" } });
       if (res.status === 429) {
         await sleep((Number(res.headers.get("retry-after")) || 30) * 1000);
         continue;
@@ -233,25 +233,18 @@ function score(item) {
 
 // ——— Загрузка ———
 
-async function loadRange(endpoint, from, to, extra = {}) {
+// Свежие записи страницами от новых к старым, пока не дойдём до начала периода.
+// Запросы с диапазоном дат и обратной сортировкой ГосПлан не тянет — обрывает соединение.
+const PAGE = 50;
+async function loadRange(endpoint, from, _to, extra = {}) {
   const out = [];
-  for (let d = new Date(from); d < to; d = new Date(d.getTime() + 86400000)) {
-    const next = new Date(Math.min(d.getTime() + 86400000, to.getTime()));
-    for (let skip = 0; skip <= 1000; skip += 100) {
-      const page = await api(endpoint, {
-        region: REGIONS,
-        published_after: d.toISOString().slice(0, 19),
-        published_before: next.toISOString().slice(0, 19),
-        sort: "published_at_asc",
-        limit: 100,
-        skip,
-        ...extra,
-      });
-      const rows = Array.isArray(page) ? page : (page?.items ?? page?.data ?? []);
-      out.push(...rows);
-      if (rows.length < 100) break;
-      if (skip === 1000) console.warn(`  ${endpoint} ${day(d)}: больше 1100 записей, часть пропущена`);
-    }
+  for (let skip = 0; skip <= 1000; skip += PAGE) {
+    const page = await api(endpoint, { region: REGIONS, sort: "published_at_desc", limit: PAGE, skip, ...extra });
+    const rows = Array.isArray(page) ? page : (page?.items ?? page?.data ?? []);
+    out.push(...rows.filter((r) => !r.published_at || new Date(r.published_at) >= from));
+    const oldest = rows.at(-1)?.published_at;
+    if (rows.length < PAGE || (oldest && new Date(oldest) < from)) break;
+    if (skip + PAGE > 1000) console.warn(`  ${endpoint}: дошли до предела 1050 записей, более старые пропущены`);
   }
   console.log(`  ${endpoint}: ${out.length}`);
   return out;
