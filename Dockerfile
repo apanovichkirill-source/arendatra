@@ -16,6 +16,8 @@ COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
 COPY --from=build /app/scripts ./scripts
+# nodemailer для scripts/tenders.mjs: в standalone-сборке он вшит в сервер и отдельно не лежит
+COPY --from=build /app/node_modules/nodemailer ./node_modules/nodemailer
 RUN mkdir -p /app/data/tenders && chown -R node:node /app/.next /app/data
 USER node
 EXPOSE 3000

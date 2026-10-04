@@ -529,16 +529,17 @@ const reportFile = path.join(DIR, `report-${day(to)}${fs.existsSync(path.join(DI
 if (found) fs.writeFileSync(reportFile, html);
 
 // Таблица контактов для обзвона (копится от запуска к запуску)
-const csvRows = winners
-  .filter((c) => c.isNew)
-  .flatMap((c) =>
+const toRows = (list) =>
+  list.flatMap((c) =>
     (c.suppliers.length ? c.suppliers : [{ phones: [], emails: [] }]).map((s) =>
       csvRow([dateRu(c.signed), s.name, s.inn, s.phones.join(", "), s.emails.join(", "), c.subject, c.price, c.customer?.name ?? c.customerInn, regionName(c.region), c.link]),
     ),
   );
+const csvRows = toRows(winners); // во вложение письма — все победители из отчёта
+const newRows = toRows(winners.filter((c) => c.isNew)); // в общую таблицу — только новые, без повторов
 const csvFile = path.join(DIR, "winners.csv");
 if (!fs.existsSync(csvFile)) fs.writeFileSync(csvFile, "﻿" + csvRow(CSV_HEAD) + "\n");
-if (csvRows.length) fs.appendFileSync(csvFile, csvRows.join("\n") + "\n");
+if (newRows.length) fs.appendFileSync(csvFile, newRows.join("\n") + "\n");
 
 for (const it of [...purchases, ...contracts]) if (it.kind) state.seen[it.id] ??= day(to);
 const cutoff = day(new Date(to.getTime() - 120 * 86400000));
