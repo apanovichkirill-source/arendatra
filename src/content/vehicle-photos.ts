@@ -1,4 +1,66 @@
-export type VehiclePhoto = { src: string; alt: string; author: string; license: string; licenseUrl?: string; source: string };
+export type VehiclePhoto = {
+  src: string;
+  alt: string;
+  author: string;
+  license: string;
+  licenseUrl?: string;
+  source: string;
+  // фото техники из нашего парка (не иллюстрация)
+  own?: boolean;
+  // вертикальный кадр — показываем целиком, без обрезки
+  portrait?: boolean;
+};
+
+const own = (src: string, alt: string, portrait = false): VehiclePhoto => ({
+  src,
+  alt,
+  author: "Арендатра",
+  license: "",
+  source: "",
+  own: true,
+  portrait,
+});
+
+// Фото техники из парка Арендатры (присланы владельцем, метаданные удалены)
+const OWN: Record<string, VehiclePhoto[]> = {
+  "avtokran-50t": [own("/vehicles/own/avtokran-50t-1.jpg", "Автокран Галичанин 50 т на шасси КАМАЗ")],
+  "avtokran-25t": [
+    own("/vehicles/own/avtokran-25t-1.jpg", "Автокран Челябинец 25 т на шасси Урал"),
+    own("/vehicles/own/avtokran-25t-2.jpg", "Автокран Челябинец 25 т на шасси Урал зимой"),
+    own("/vehicles/own/avtokran-25t-3.jpg", "Автокран на шасси КАМАЗ на ремонте моста"),
+    own("/vehicles/own/avtokran-25t-4.jpg", "Автокран Челябинец 25 т на шасси Урал на объекте"),
+  ],
+  "avtovyshka": [
+    own("/vehicles/own/avtovyshka-1.jpg", "Автовышка на шасси КАМАЗ на промысле зимой", true),
+    own("/vehicles/own/avtovyshka-2.jpg", "Автовышка на шасси КАМАЗ 6×6"),
+  ],
+  "ekskavator": [
+    own("/vehicles/own/ekskavator-1.jpg", "Гусеничный экскаватор Hyundai на базе зимой"),
+    own("/vehicles/own/ekskavator-2.jpg", "Гусеничный экскаватор Hyundai"),
+    own("/vehicles/own/ekskavator-3.jpg", "Гусеничный экскаватор на расчистке зарослей"),
+    own("/vehicles/own/ekskavator-4.jpg", "Гусеничный экскаватор LiuGong на копке котлована"),
+  ],
+  "buldozer": [
+    own("/vehicles/own/buldozer-1.jpg", "Бульдозер Shantui на отсыпке дороги"),
+    own("/vehicles/own/buldozer-2.jpg", "Бульдозер Shantui на планировке дороги"),
+    own("/vehicles/own/buldozer-3.jpg", "Бульдозер Shantui в тундре"),
+  ],
+  "vahtovka": [
+    own("/vehicles/own/vahtovka-1.jpg", "Вахтовый автобус на шасси КАМАЗ 6×6"),
+    own("/vehicles/own/vahtovka-2.jpg", "Вахтовый автобус КАМАЗ 6×6 с боковой дверью"),
+    own("/vehicles/own/vahtovka-3.jpg", "Вахтовый автобус КАМАЗ 6×6 зимой"),
+    own("/vehicles/own/vahtovka-4.jpg", "Вахтовый автобус КАМАЗ 6×6 на грунтовой дороге"),
+  ],
+};
+
+const OWN_BY_PREFIX: [string, string][] = [
+  ["avtokran-50t", "avtokran-50t"],
+  ["avtokran-25t", "avtokran-25t"],
+  ["avtovyshka-", "avtovyshka"],
+  ["gusenichnyy-ekskavator", "ekskavator"],
+  ["buldozer", "buldozer"],
+  ["vahtovyy-avtobus", "vahtovka"],
+];
 
 // Иллюстративные фото (Wikimedia Commons, свободные лицензии). Это не снимки конкретных машин каталога.
 const POOLS: Record<string, VehiclePhoto[]> = {
@@ -159,7 +221,18 @@ const START: Record<string, number> = {
 
 // Несколько разных фото для карточки: стартовое фото и шаг по пулу зависят от адреса,
 // поэтому у соседних машин одного типа наборы и порядок снимков различаются.
+// Сначала наши фото (по кругу, чтобы у соседних машин обложки различались),
+// затем иллюстрации — если своих снимков меньше, чем нужно
 export function vehiclePhotos(slug: string, count = 4): VehiclePhoto[] {
+  const ownKey = OWN_BY_PREFIX.find(([prefix]) => slug.startsWith(prefix))?.[1];
+  const mine = ownKey ? OWN[ownKey] : [];
+  const start = mine.length ? (START[slug] ?? hash(slug)) % mine.length : 0;
+  const ownPart = mine.map((_, i) => mine[(start + i) % mine.length]).slice(0, count);
+  if (ownPart.length >= count) return ownPart;
+  return [...ownPart, ...illustrativePhotos(slug, count - ownPart.length)];
+}
+
+function illustrativePhotos(slug: string, count: number): VehiclePhoto[] {
   const pool = POOL_BY_PREFIX.find(([prefix]) => slug.startsWith(prefix));
   if (!pool) return [];
   const photos = POOLS[pool[1]];

@@ -42,11 +42,13 @@ export function VehicleCard({
               width={600}
               height={375}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px"
-              className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-105"
+              className={`absolute inset-0 h-full w-full transition group-hover:scale-105 ${photo.portrait ? "bg-gray-100 object-contain" : "object-cover"}`}
             />
-            <span className="absolute left-2 top-2 rounded-md bg-black/55 px-2 py-0.5 text-[10px] font-medium text-white">
-              Иллюстрация
-            </span>
+            {!photo.own && (
+              <span className="absolute left-2 top-2 rounded-md bg-black/55 px-2 py-0.5 text-[10px] font-medium text-white">
+                Иллюстрация
+              </span>
+            )}
           </>
         ) : (
           <>

@@ -19,7 +19,7 @@ export function VehicleGallery({ photos, title }: { photos: VehiclePhoto[]; titl
         height={750}
         priority={active === 0}
         sizes="(max-width: 1024px) 100vw, 620px"
-        className="aspect-[16/9] w-full rounded-xl object-cover"
+        className={`aspect-[16/9] w-full rounded-xl ${photo.portrait ? "bg-gray-100 object-contain" : "object-cover"}`}
       />
       {photos.length > 1 && (
         <div className="mt-2 grid grid-cols-4 gap-2">
@@ -46,8 +46,14 @@ export function VehicleGallery({ photos, title }: { photos: VehiclePhoto[]; titl
           ))}
         </div>
       )}
+      {photo.own ? (
+        <figcaption className="mt-2 text-xs text-gray-400">
+          Фото {active + 1}: техника из нашего парка. Какая именно машина выйдет на ваш объект, уточняйте
+          у менеджера.
+        </figcaption>
+      ) : (
       <figcaption className="mt-2 text-xs text-gray-400">
-        Иллюстративные фото: так выглядит техника этого типа, это не снимки конкретной машины.
+        Иллюстративное фото: так выглядит техника этого типа, это не снимок конкретной машины.
         Фото {active + 1}: {photo.author}, {photo.license}
         {photo.licenseUrl && (
           <>
@@ -61,6 +67,7 @@ export function VehicleGallery({ photos, title }: { photos: VehiclePhoto[]; titl
         </a>
         .
       </figcaption>
+      )}
     </figure>
   );
 }
