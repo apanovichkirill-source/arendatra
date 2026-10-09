@@ -5,14 +5,18 @@ import { landingPath } from "@/lib/landing";
 import { getSeoPaths } from "@/lib/seo-pages";
 import { getPublishedArticles } from "@/lib/articles";
 import { CATEGORY_LANDING } from "@/lib/seo";
+import { BASE_CITY } from "@/lib/contacts";
+import { CITY_INFO } from "@/lib/cities";
 
 export const dynamic = "force-dynamic";
+
+const BASE_PATH = new RegExp(`/${CITY_INFO[BASE_CITY].slug}(/|$)`);
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [vehicles, owners] = await Promise.all([
     prisma.vehicle.findMany({
       where: { isActive: true },
-      select: { slug: true, updatedAt: true },
+      select: { slug: true, updatedAt: true, city: true },
     }),
     prisma.owner.findMany({
       where: { isActive: true, vehicles: { some: { isActive: true } } },
@@ -38,16 +42,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
+    // Усинск — наша база, его страницы и технику поднимаем в приоритете
     ...(await getSeoPaths()).map((p) => ({
       url: `${SITE_URL}${p.path}`,
       changeFrequency: "weekly" as const,
-      priority: p.priority,
+      priority: BASE_PATH.test(p.path) ? Math.max(p.priority, 0.95) : p.priority,
     })),
     ...vehicles.map((v) => ({
       url: `${SITE_URL}/vehicle/${v.slug}`,
       lastModified: v.updatedAt,
       changeFrequency: "weekly" as const,
-      priority: 0.8,
+      priority: v.city === BASE_CITY ? 0.9 : 0.8,
     })),
     ...owners.map((o) => ({
       url: `${SITE_URL}/owner/${o.id}`,
