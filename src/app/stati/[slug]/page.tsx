@@ -8,7 +8,10 @@ import { SITE_URL } from "@/lib/site";
 import { ARTICLE_IMAGES } from "@/content/article-images";
 import { vehiclePhoto } from "@/content/vehicle-photos";
 import { PartnerBlock } from "@/components/PartnerBlock";
+import { CATEGORY_SEO } from "@/lib/seo";
+import { landingPath } from "@/lib/landing";
 import {
+  type Article,
   formatArticleDate,
   getArticle,
   getPublishedArticles,
@@ -21,37 +24,85 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const a = getArticle(slug);
   if (!a) return { title: "Статья не найдена", robots: { index: false } };
+  const image = articleImage(a);
   return {
     title: a.title,
     description: a.description,
     alternates: { canonical: `/stati/${a.slug}` },
-    openGraph: { type: "article", title: a.title, description: a.description },
+    openGraph: {
+      type: "article",
+      title: a.title,
+      description: a.description,
+      publishedTime: `${a.publishedAt}T09:00:00+03:00`,
+      section: a.topic,
+      ...(image ? { images: [{ url: image.src, alt: image.alt }] } : {}),
+    },
   };
 }
+
+function articleImage(a: Article) {
+  return ARTICLE_IMAGES[a.slug] ?? (a.photoKey ? vehiclePhoto(`${a.photoKey}-${a.slug}`) : null);
+}
+
+// photoKey статьи → страница аренды этой техники (перелинковка статья → посадочная)
+const LANDING_BY_PHOTO_KEY: Record<string, string> = {
+  "avtokran-": "avtokran-25t",
+  "avtovyshka-": "avtovyshka-agp",
+  buldozer: "buldozer",
+  "gusenichnyy-ekskavator": "gusenichnyy-ekskavator",
+  "vahtovyy-avtobus": "vahtovyy-avtobus",
+  "legkovye-ts": "legkovye-ts",
+};
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
   const a = getArticle(slug);
   if (!a) notFound();
   const nonce = (await headers()).get("x-nonce") || undefined;
-  const image = ARTICLE_IMAGES[a.slug] ?? (a.photoKey ? vehiclePhoto(`${a.photoKey}-${a.slug}`) : null);
-  const more = getPublishedArticles()
-    .filter((x) => x.slug !== a.slug)
-    .slice(0, 3);
+  const image = articleImage(a);
+  const ownPhoto = !!image && "own" in image && image.own;
+  const landingSlug = a.photoKey ? LANDING_BY_PHOTO_KEY[a.photoKey] : undefined;
+  const landing = landingSlug && CATEGORY_SEO[landingSlug]
+    ? { href: landingPath(landingSlug), title: CATEGORY_SEO[landingSlug].title }
+    : null;
+  // сначала статьи той же темы, затем остальные свежие
+  const others = getPublishedArticles().filter((x) => x.slug !== a.slug);
+  const more = [
+    ...others.filter((x) => x.topic === a.topic),
+    ...others.filter((x) => x.topic !== a.topic),
+  ].slice(0, 5);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: a.title,
-    description: a.description,
-    datePublished: a.publishedAt,
-    ...(image ? { image: `${SITE_URL}${image.src}` } : {}),
-    dateModified: a.publishedAt,
-    inLanguage: "ru-RU",
-    mainEntityOfPage: `${SITE_URL}/stati/${a.slug}`,
-    author: { "@type": "Organization", name: "Арендатра" },
-    publisher: { "@type": "Organization", name: "Арендатра", url: SITE_URL },
-  };
+  const url = `${SITE_URL}/stati/${a.slug}`;
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: a.title,
+      description: a.description,
+      datePublished: `${a.publishedAt}T09:00:00+03:00`,
+      dateModified: `${a.publishedAt}T09:00:00+03:00`,
+      ...(image ? { image: { "@type": "ImageObject", url: `${SITE_URL}${image.src}` } } : {}),
+      articleSection: a.topic,
+      inLanguage: "ru-RU",
+      mainEntityOfPage: url,
+      author: { "@type": "Organization", name: "Арендатра", url: SITE_URL },
+      publisher: {
+        "@type": "Organization",
+        name: "Арендатра",
+        url: SITE_URL,
+        logo: { "@type": "ImageObject", url: `${SITE_URL}/logo-icon.png` },
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Главная", item: SITE_URL },
+        { "@type": "ListItem", position: 2, name: "Статьи", item: `${SITE_URL}/stati` },
+        { "@type": "ListItem", position: 3, name: a.title, item: url },
+      ],
+    },
+  ];
 
   return (
     <>
@@ -80,6 +131,9 @@ export default async function ArticlePage({ params }: Props) {
               sizes="(max-width: 768px) 100vw, 768px"
               className="h-auto w-full rounded-2xl object-cover"
             />
+            {ownPhoto ? (
+              <figcaption className="mt-2 text-xs text-gray-400">Техника из нашего парка.</figcaption>
+            ) : (
             <figcaption className="mt-2 text-xs text-gray-400">
               Иллюстративное фото. Автор: {image.author}, {image.license}
               {image.licenseUrl && (
@@ -94,6 +148,7 @@ export default async function ArticlePage({ params }: Props) {
               </a>
               .
             </figcaption>
+            )}
           </figure>
         )}
         <div className="space-y-4 text-gray-700">
@@ -137,12 +192,26 @@ export default async function ArticlePage({ params }: Props) {
           <p className="mt-1 text-sm text-white/70">
             Выберите машину в каталоге, отметьте даты и отправьте заявку: предоплата не нужна.
           </p>
-          <Link
-            href="/catalog"
-            className="mt-4 inline-block rounded-lg bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-orange-dark"
-          >
-            Открыть каталог
-          </Link>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {landing && (
+              <Link
+                href={landing.href}
+                className="inline-block rounded-lg bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-orange-dark"
+              >
+                {landing.title} — цены и техника
+              </Link>
+            )}
+            <Link
+              href="/catalog"
+              className={
+                landing
+                  ? "inline-block rounded-lg border border-white/30 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  : "inline-block rounded-lg bg-brand-orange px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-orange-dark"
+              }
+            >
+              Весь каталог техники
+            </Link>
+          </div>
         </div>
 
         {a.related.length > 0 && (
@@ -164,7 +233,7 @@ export default async function ArticlePage({ params }: Props) {
 
         {more.length > 0 && (
           <section className="mt-10">
-            <h2 className="mb-3 text-lg font-bold text-brand-navy">Другие статьи</h2>
+            <h2 className="mb-3 text-lg font-bold text-brand-navy">Читайте также</h2>
             <ul className="space-y-2">
               {more.map((m) => (
                 <li key={m.slug}>
