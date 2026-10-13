@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
 import { CallbackForm } from "@/components/CallbackForm";
 import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
-import { ADDRESS, MESSENGER, PHONES, WORK_HOURS } from "@/lib/contacts";
+import { ADDRESS, MESSENGER, OWNER_NAME, PHONES, WORK_HOURS } from "@/lib/contacts";
 
 export const metadata: Metadata = {
   title: "Контакты — аренда спецтехники в Коми и НАО",
@@ -33,6 +33,7 @@ export default function ContactsPage() {
               ))}
             </ul>
             <p className="mt-3 text-sm text-gray-600">Звонки принимаем {WORK_HOURS} (по московскому времени).</p>
+            <p className="mt-2 text-sm text-gray-600">{`Руководитель: ${OWNER_NAME}`}</p>
           </section>
           <section className="rounded-2xl border border-black/10 bg-white p-6">
             <h2 className="text-lg font-bold text-brand-navy">Написать нам</h2>

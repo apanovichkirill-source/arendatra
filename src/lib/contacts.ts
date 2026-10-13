@@ -15,6 +15,9 @@ export const ADDRESS = {
   short: "Усинск, пгт Парма, ул. Луговая, 59А",
 } as const;
 
+// Имя должно совпадать с профилем на Яндекс Исполнителях — по нему Яндекс подтверждает сайт
+export const OWNER_NAME = "Кирилл Апанович";
+
 export const WORK_HOURS = "с 8:00 до 20:00";
 export const MESSENGER = "MAX";
 export const CLIENTS = ["ЛУКОЙЛ", "ННК", "РВП", "Транснефть"];

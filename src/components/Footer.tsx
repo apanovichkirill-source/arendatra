@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Logo, LogoMark } from "@/components/Logo";
 import { CATEGORY_SEO } from "@/lib/seo";
 import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
-import { ADDRESS, PHONES, WORK_HOURS } from "@/lib/contacts";
+import { ADDRESS, OWNER_NAME, PHONES, WORK_HOURS } from "@/lib/contacts";
 import { PARTNER_NAME, partnerUrl } from "@/lib/partner";
 
 export function Footer() {
@@ -29,6 +29,7 @@ export function Footer() {
               <span className="block text-xs text-white/60">Звонки {WORK_HOURS}</span>
             </p>
             <p className="mt-2 text-white/80">База: {ADDRESS.short}</p>
+            <p className="mt-1 text-white/80">{`Руководитель: ${OWNER_NAME}`}</p>
             <p className="mt-4 max-w-md leading-relaxed">
               Аренда грузоподъёмной, землеройной техники и пассажирского транспорта в
               Республике Коми и Ненецком автономном округе.
