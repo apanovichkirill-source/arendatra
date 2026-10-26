@@ -12,6 +12,7 @@ const CATEGORIES: { group: CategoryGroup; name: string; slug: string; sortOrder:
   { group: "LIFTING", name: "Автовышка (АГП)", slug: "avtovyshka-agp", sortOrder: 3 },
   { group: "EARTHMOVING", name: "Гусеничный экскаватор", slug: "gusenichnyy-ekskavator", sortOrder: 1 },
   { group: "EARTHMOVING", name: "Бульдозер", slug: "buldozer", sortOrder: 2 },
+  { group: "EARTHMOVING", name: "Виброкаток грунтовый", slug: "vibrokatok", sortOrder: 3 },
   { group: "PASSENGER", name: "Вахтовый автобус", slug: "vahtovyy-avtobus", sortOrder: 1 },
   { group: "PASSENGER", name: "Легковые ТС", slug: "legkovye-ts", sortOrder: 2 },
 ];

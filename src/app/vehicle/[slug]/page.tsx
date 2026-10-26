@@ -151,7 +151,7 @@ export default async function VehiclePage({ params }: Props) {
             average={reviewData.average}
           />
 
-          {["gusenichnyy-ekskavator", "buldozer", "avtokran-25t", "avtokran-50t"].includes(vehicle.category.slug) && (
+          {["gusenichnyy-ekskavator", "buldozer", "vibrokatok", "avtokran-25t", "avtokran-50t"].includes(vehicle.category.slug) && (
             <PartnerBlock className="mt-6" />
           )}
 

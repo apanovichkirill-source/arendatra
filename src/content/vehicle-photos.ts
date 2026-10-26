@@ -23,6 +23,7 @@ const own = (src: string, alt: string, portrait = false): VehiclePhoto => ({
 
 // Фото техники из парка Арендатры (присланы владельцем, метаданные удалены)
 const OWN: Record<string, VehiclePhoto[]> = {
+  vibrokatok: [own("/vehicles/own/katok-1.jpg", "Грунтовый виброкаток LiuGong, валец 2130 мм")],
   "avtokran-50t": [own("/vehicles/own/avtokran-50t-1.jpg", "Автокран Галичанин 50 т на шасси КАМАЗ")],
   "avtokran-25t": [
     own("/vehicles/own/avtokran-25t-1.jpg", "Автокран Челябинец 25 т на шасси Урал"),
@@ -59,6 +60,7 @@ const OWN_BY_PREFIX: [string, string][] = [
   ["avtovyshka-", "avtovyshka"],
   ["gusenichnyy-ekskavator", "ekskavator"],
   ["buldozer", "buldozer"],
+  ["vibrokatok", "vibrokatok"],
   ["vahtovyy-avtobus", "vahtovka"],
 ];
 

@@ -128,7 +128,9 @@ export function BookingWidget({
         {pricePerHour ? formatPrice(pricePerHour) : "Цена по запросу"}
         <span className="ml-1 text-sm font-normal text-gray-500">/ час</span>
       </p>
-      <p className="mt-1 text-xs text-gray-500">Минимальная аренда — {effectiveMinHours} ч.</p>
+      <p className="mt-1 text-xs text-gray-500">
+        Минимальная аренда — {effectiveMinHours >= 80 ? `${effectiveMinHours / 8} смен (${effectiveMinHours} ч)` : `${effectiveMinHours} ч`}.
+      </p>
       <p className="mt-1 text-xs text-gray-400">Цена без учёта 5% НДС</p>
 
       <div className="mt-4">
