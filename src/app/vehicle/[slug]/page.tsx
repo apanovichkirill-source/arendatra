@@ -14,6 +14,7 @@ import { getVehicleReviews } from "@/lib/reviews";
 import { vehiclePhotos } from "@/content/vehicle-photos";
 import { VehicleGallery } from "@/components/catalog/VehicleGallery";
 import { PartnerBlock } from "@/components/PartnerBlock";
+import { CITY_INFO, type ServiceCityName } from "@/lib/cities";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -22,12 +23,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const vehicle = await getVehicleBySlug(slug);
   if (!vehicle) return { title: "Транспорт не найден" };
 
+  // Город в заголовке: иначе одинаковая техника в разных городах даёт дубли title
+  const cityIn = vehicle.city
+    ? (CITY_INFO[vehicle.city as ServiceCityName]?.in ?? `в г. ${vehicle.city}`)
+    : "в Республике Коми";
   const description = `${formatPrice(vehicle.pricePerHour)} / час. ${
-    vehicle.description ?? `Аренда: ${vehicle.title} в ${vehicle.city ?? "Республике Коми"}.`
+    vehicle.description ?? `Аренда: ${vehicle.title} ${cityIn}.`
   }`;
 
   return {
-    title: `${vehicle.title} — аренда от ${formatPrice(vehicle.pricePerHour)}/ч`,
+    title: `${vehicle.title} — аренда ${cityIn} от ${formatPrice(vehicle.pricePerHour)}/ч`,
     description,
     alternates: { canonical: `/vehicle/${vehicle.slug}` },
     openGraph: { title: vehicle.title, description },

@@ -49,6 +49,7 @@ const LANDING_BY_PHOTO_KEY: Record<string, string> = {
   "avtokran-": "avtokran-25t",
   "avtovyshka-": "avtovyshka-agp",
   buldozer: "buldozer",
+  vibrokatok: "vibrokatok",
   "gusenichnyy-ekskavator": "gusenichnyy-ekskavator",
   "vahtovyy-avtobus": "vahtovyy-avtobus",
   "legkovye-ts": "legkovye-ts",
