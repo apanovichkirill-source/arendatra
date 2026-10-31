@@ -18,6 +18,13 @@ export const ADDRESS = {
 // Имя должно совпадать с профилем на Яндекс Исполнителях — по нему Яндекс подтверждает сайт
 export const OWNER_NAME = "Кирилл Апанович";
 
+// Наши карточки на площадках: в разметке sameAs и ссылки «отзывы» на сайте
+export const PROFILES = {
+  yandexMaps: "https://yandex.ru/maps/org/arendatra/228262412590/",
+  yandexReviews: "https://yandex.ru/maps/org/arendatra/228262412590/reviews/",
+  yandexUslugi: "https://uslugi.yandex.ru/profile/KirillApanovich-3443933",
+} as const;
+
 export const WORK_HOURS = "с 8:00 до 20:00";
 export const MESSENGER = "MAX";
 export const CLIENTS = ["ЛУКОЙЛ", "ННК", "РВП", "Транснефть"];

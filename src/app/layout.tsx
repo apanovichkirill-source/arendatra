@@ -12,7 +12,7 @@ import { YandexMetrika } from "@/components/YandexMetrika";
 import { getBuyerSession } from "@/lib/session";
 import { SITE_URL } from "@/lib/site";
 import { SERVICE_CITIES } from "@/lib/cities";
-import { ADDRESS, PHONES } from "@/lib/contacts";
+import { ADDRESS, OWNER_NAME, PHONES, PROFILES } from "@/lib/contacts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -70,6 +70,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       addressRegion: ADDRESS.region,
       addressCountry: "RU",
     },
+    sameAs: [PROFILES.yandexMaps, PROFILES.yandexUslugi],
+    founder: { "@type": "Person", name: OWNER_NAME },
     areaServed: SERVICE_CITIES.map((city) => ({
       "@type": "City",
       name: city,

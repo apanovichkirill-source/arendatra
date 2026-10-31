@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Logo, LogoMark } from "@/components/Logo";
 import { CATEGORY_SEO } from "@/lib/seo";
 import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
-import { ADDRESS, OWNER_NAME, PHONES, WORK_HOURS } from "@/lib/contacts";
+import { ADDRESS, OWNER_NAME, PHONES, PROFILES, WORK_HOURS } from "@/lib/contacts";
 import { PARTNER_NAME, partnerUrl } from "@/lib/partner";
 
 export function Footer() {
@@ -89,6 +89,9 @@ export function Footer() {
           <Link href="/kontakty" className="text-white/90 underline-offset-4 hover:underline">
             Контакты
           </Link>
+          <a href={PROFILES.yandexReviews} target="_blank" rel="noopener" className="text-white/90 underline-offset-4 hover:underline">
+            Отзывы на Яндекс Картах
+          </a>
           <Link href="/privacy" className="text-white/90 underline-offset-4 hover:underline">
             Политика конфиденциальности
           </Link>

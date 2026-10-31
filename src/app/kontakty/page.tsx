@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
 import { CallbackForm } from "@/components/CallbackForm";
 import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
-import { ADDRESS, MESSENGER, OWNER_NAME, PHONES, WORK_HOURS } from "@/lib/contacts";
+import { ADDRESS, MESSENGER, OWNER_NAME, PHONES, PROFILES, WORK_HOURS } from "@/lib/contacts";
 
 export const metadata: Metadata = {
   title: "Контакты — аренда спецтехники в Коми и НАО",
@@ -69,14 +69,17 @@ export default function ContactsPage() {
             Отсюда техника выходит на объекты Усинского района, промыслы и площадки по всей
             Республике Коми и НАО. Перед приездом позвоните менеджеру.
           </p>
-          <a
-            href={`https://yandex.ru/maps/?text=${encodeURIComponent(ADDRESS.full)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 inline-block text-sm font-semibold text-brand-blue hover:underline"
-          >
-            Открыть на Яндекс Картах
-          </a>
+          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
+            <a href={PROFILES.yandexMaps} target="_blank" rel="noopener" className="text-brand-blue hover:underline">
+              Мы на Яндекс Картах
+            </a>
+            <a href={PROFILES.yandexReviews} target="_blank" rel="noopener" className="text-brand-blue hover:underline">
+              Оставить отзыв
+            </a>
+            <a href={PROFILES.yandexUslugi} target="_blank" rel="noopener" className="text-brand-blue hover:underline">
+              Профиль в Яндекс Услугах
+            </a>
+          </div>
         </section>
 
         <section className="mt-8">
