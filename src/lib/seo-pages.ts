@@ -7,6 +7,7 @@ import { ACCUSATIVE, CATEGORY_LANDING, CATEGORY_SEO } from "@/lib/seo";
 import { CITY_INFO, SERVICE_CITIES, cityBySlug, type ServiceCityName } from "@/lib/cities";
 import { formatPrice } from "@/lib/format";
 import { pluralize } from "@/lib/landing";
+import { ADDRESS, BASE_CITY } from "@/lib/contacts";
 
 type Vehicles = Awaited<ReturnType<typeof getVehicles>>;
 
@@ -471,7 +472,7 @@ export async function buildSpecPage(citySlug?: string): Promise<SeoPageModel | n
 
   const intro: string[] = city
     ? [
-        `Аренда спецтехники ${where}: автокраны 25 и 50 тонн, автовышки (АГП), гусеничные экскаваторы и бульдозеры, вахтовые автобусы и легковой транспорт. Почасовые тарифы, бронирование онлайн без предоплаты.`,
+        `Аренда спецтехники ${where}: автокраны 25 и 50 тонн, автовышки (АГП), гусеничные экскаваторы и бульдозеры, виброкатки, вахтовые автобусы и легковой транспорт. Почасовые тарифы, бронирование онлайн без предоплаты.`,
         CITY_INFO[city].note,
         extra!.logistics,
       ]
@@ -490,6 +491,17 @@ export async function buildSpecPage(citySlug?: string): Promise<SeoPageModel | n
     : "Аренда автокранов, автовышек, экскаваторов, бульдозеров и вахтовых автобусов в Сыктывкаре, Ухте, Усинске, Печоре, Воркуте и Нарьян-Маре. Почасовые тарифы, без предоплаты.";
 
   const sections: SeoPageModel["sections"] = [];
+  // Усинск — наша база: у этой страницы свой раздел, которого нет у других городов
+  if (city === BASE_CITY) {
+    sections.push({
+      title: "Своя база в Усинске",
+      paragraphs: [
+        `Техника стоит на нашей базе в пгт Парма (${ADDRESS.street}). Это своя техника, не посредники: автокраны 25 и 50 т на вездеходных шасси, автовышка 33 м, гусеничные экскаваторы с болотными гусеницами и сланями, бульдозер Shantui, грунтовый виброкаток и вахтовые КАМАЗы.`,
+        "По Усинску и Парме машина приезжает в тот же день, на промыслы района — по согласованию с вашим диспетчером. Пропуска на месторождения у нас есть, экипажи знают дороги и зимники.",
+        "Работаем по договору с подрядчиками нефтяных компаний и частными заказчиками, оплата наличными или по безналу.",
+      ],
+    });
+  }
   if (city) {
     sections.push({
       title: `Для каких работ арендуют технику ${where}`,

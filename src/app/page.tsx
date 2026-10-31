@@ -115,6 +115,15 @@ const FAQ = [
   },
 ];
 
+// Города в первом экране — ссылки на страницы городов (внутренняя перелинковка с главной)
+const HERO_CITIES = [
+  { slug: "uhta", label: "Ухте" },
+  { slug: "pechora", label: "Печоре" },
+  { slug: "vorkuta", label: "Воркуте" },
+  { slug: "syktyvkar", label: "Сыктывкаре" },
+  { slug: "naryan-mar", label: "Нарьян-Маре" },
+];
+
 export default async function HomePage() {
   const [vehicles, cities, categories, combos] = await Promise.all([
     getVehicles(),
@@ -156,10 +165,22 @@ export default async function HomePage() {
             Аренда спецтехники и транспорта в Республике Коми и НАО
           </h1>
           <p className="mt-4 max-w-xl text-white/80">
-            Автокраны, автовышки, экскаваторы, бульдозеры, вахтовые автобусы и легковой
+            Автокраны, автовышки, экскаваторы, бульдозеры, катки, вахтовые автобусы и легковой
             транспорт — почасовая аренда с прозрачными тарифами, без предоплаты. Наша база — в
-            Усинске (пгт Парма), работаем также в Ухте, Печоре, Воркуте, Сыктывкаре,
-            Нарьян-Маре и других городах региона.
+            Усинске (пгт Парма):{" "}
+            <Link href="/spetstehnika/usinsk" className="font-semibold text-white underline underline-offset-4">
+              аренда спецтехники в Усинске
+            </Link>{" "}
+            без долгой подачи. Работаем также в{" "}
+            {HERO_CITIES.map((c, i) => (
+              <span key={c.slug}>
+                {i > 0 && (i === HERO_CITIES.length - 1 ? " и " : ", ")}
+                <Link href={`/spetstehnika/${c.slug}`} className="text-white underline-offset-4 hover:underline">
+                  {c.label}
+                </Link>
+              </span>
+            ))}
+            .
           </p>
 
           <form
