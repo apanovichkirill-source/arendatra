@@ -82,9 +82,42 @@ h2,
   animation: fade-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
+/* Появление блоков при прокрутке — только CSS; где view() не поддерживается, блоки просто видны */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: fade-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 35%;
+  }
+}
+
+/* Уголки «чертежа» вокруг фото на первом экране */
+.blueprint-corners::before,
+.blueprint-corners::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: var(--color-brand-orange);
+  pointer-events: none;
+}
+.blueprint-corners::before {
+  top: -10px;
+  left: -10px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+.blueprint-corners::after {
+  right: -10px;
+  bottom: -10px;
+  border-right: 2px solid;
+  border-bottom: 2px solid;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-float-soft,
-  .animate-fade-up {
+  .animate-fade-up,
+  .reveal {
     animation: none;
   }
 }

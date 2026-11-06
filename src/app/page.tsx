@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { getVehicles, getCities, getCategories } from "@/lib/vehicles";
 import { VehicleCard } from "@/components/catalog/VehicleCard";
@@ -11,8 +12,9 @@ import { CATEGORY_SEO } from "@/lib/seo";
 import { CITY_INFO, SERVICE_CITIES } from "@/lib/cities";
 import { PartnerBlock } from "@/components/PartnerBlock";
 import { LogoMark } from "@/components/Logo";
-import { CLIENTS, PHONES, WORK_HOURS } from "@/lib/contacts";
+import { CLIENTS, PHONES, PROFILES, WORK_HOURS } from "@/lib/contacts";
 import { VehicleIcon } from "@/components/catalog/VehicleIcon";
+import { getLatestReviews } from "@/lib/reviews";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
@@ -21,16 +23,22 @@ const GROUPS = [
     group: "LIFTING",
     title: "Грузоподъёмная техника",
     description: "Автокраны 25 и 50 т, автовышки (АГП)",
+    photo: "/vehicles/own/avtokran-25t-1.jpg",
+    alt: "Автокран Челябинец 25 т на шасси Урал",
   },
   {
     group: "EARTHMOVING",
     title: "Землеройная техника",
     description: "Гусеничные экскаваторы, бульдозеры",
+    photo: "/vehicles/own/ekskavator-4.jpg",
+    alt: "Гусеничный экскаватор на земляных работах",
   },
   {
     group: "PASSENGER",
     title: "Пассажирские перевозки",
     description: "Вахтовые автобусы, легковой транспорт до 8 мест",
+    photo: "/vehicles/own/vahtovka-2.jpg",
+    alt: "Вахтовый автобус КАМАЗ 6×6",
   },
 ] as const;
 
@@ -39,6 +47,14 @@ const FACTS = [
   { value: "0 ₽", label: "предоплата онлайн" },
   { value: "от 4 ч", label: "почасовая аренда" },
   { value: "24/7", label: "заявки на сайте" },
+];
+
+// Чем своя техника отличается от посредника — блок рядом с заказчиками отрасли
+const BASE_POINTS = [
+  "Своя база в Усинске (пгт Парма) — подача по району без долгой перегонки",
+  "Вездеходные шасси 6×6, болотные гусеницы и слани для слабых грунтов",
+  "Договор, счёт и закрывающие документы, наличный и безналичный расчёт",
+  "Обученный персонал на машинах, сроки подачи согласуем до выезда",
 ];
 
 // Задачи, с которыми к нам приходят заказчики, и что мы для этого делаем
@@ -124,22 +140,48 @@ const HERO_CITIES = [
   { slug: "naryan-mar", label: "Нарьян-Маре" },
 ];
 
+// Города, где ссылки на четыре главные категории ставим всегда, даже без объявлений в базе
+const POPULAR_CITY_SLUGS = ["usinsk", "uhta", "syktyvkar", "pechora", "vorkuta"];
+
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" className="mt-0.5 h-5 w-5 shrink-0 text-brand-orange" aria-hidden>
+      <path
+        fillRule="evenodd"
+        d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.6l7.3-7.3a1 1 0 0 1 1.4 0Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+}
+
+function Stars({ rating }: { rating: number }) {
+  return (
+    <span className="text-brand-orange" aria-label={`Оценка ${rating} из 5`}>
+      {"★".repeat(rating)}
+      <span className="text-gray-300">{"★".repeat(5 - rating)}</span>
+    </span>
+  );
+}
+
 export default async function HomePage() {
-  const [vehicles, cities, categories, combos] = await Promise.all([
+  const [vehicles, cities, categories, combos, reviewData] = await Promise.all([
     getVehicles(),
     getCities(),
     getCategories(),
     getLandingCombos(),
+    getLatestReviews(3),
   ]);
   const featured = vehicles.slice(0, 6);
   // Минимальная ставка в группе — для подписи «от … ₽/ч» на плитке
-  const minPrice = (group: string) => {
+  const minPrice = (group?: string) => {
     const prices = vehicles
-      .filter((v) => v.category.group === group && v.pricePerHour != null)
+      .filter((v) => (!group || v.category.group === group) && v.pricePerHour != null)
       .map((v) => Number(String(v.pricePerHour)))
       .filter((n) => Number.isFinite(n) && n > 0);
     return prices.length ? Math.min(...prices) : null;
   };
+  const overallMin = minPrice();
   const nonce = (await headers()).get("x-nonce") || undefined;
   const faqJsonLd = {
     "@context": "https://schema.org",
@@ -157,41 +199,117 @@ export default async function HomePage() {
       .map((c) => ({ slug: c.slug, name: c.name })),
   }));
 
+  // Ссылки на посадочные «категория + город», сгруппированные по городам (вместо трёх облаков тегов)
+  const cityLinks = SERVICE_CITIES.map((city) => {
+    const info = CITY_INFO[city];
+    const seen = new Set<string>();
+    const links: { href: string; label: string }[] = [];
+    const add = (cat: string) => {
+      const href = landingPath(cat, city);
+      if (seen.has(href)) return;
+      seen.add(href);
+      links.push({ href, label: `${CATEGORY_SEO[cat]?.title ?? cat} ${info.in}` });
+    };
+    if (POPULAR_CITY_SLUGS.includes(info.slug)) Object.keys(CATEGORY_SEO).slice(0, 4).forEach(add);
+    combos.filter((c) => c.city === city).forEach((c) => add(c.categorySlug));
+    return { city, info, links };
+  });
+
   return (
     <div>
-      <section className="bg-brand-navy">
-        <div className="mx-auto max-w-6xl px-4 py-16 text-white">
-          <h1 className="max-w-2xl text-3xl font-bold sm:text-4xl">
-            Аренда спецтехники и транспорта в Республике Коми и НАО
-          </h1>
-          <p className="mt-4 max-w-xl text-white/80">
-            Автокраны, автовышки, экскаваторы, бульдозеры, катки, вахтовые автобусы и легковой
-            транспорт — почасовая аренда с прозрачными тарифами, без предоплаты. Наша база — в
-            Усинске (пгт Парма):{" "}
-            <Link href="/spetstehnika/usinsk" className="font-semibold text-white underline underline-offset-4">
-              аренда спецтехники в Усинске
-            </Link>{" "}
-            без долгой подачи. Работаем также в{" "}
-            {HERO_CITIES.map((c, i) => (
-              <span key={c.slug}>
-                {i > 0 && (i === HERO_CITIES.length - 1 ? " и " : ", ")}
-                <Link href={`/spetstehnika/${c.slug}`} className="text-white underline-offset-4 hover:underline">
-                  {c.label}
-                </Link>
-              </span>
-            ))}
-            .
-          </p>
+      {/* Первый экран: оффер и звонок слева, своя техника справа */}
+      <section className="relative overflow-hidden bg-brand-navy text-white">
+        <div className="bg-blueprint absolute inset-0" aria-hidden />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 pb-28 pt-12 lg:grid-cols-[1.05fr_1fr] lg:pb-32 lg:pt-16">
+          <div className="animate-fade-up">
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white/80">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-orange" />
+              Своя техника · база в Усинске
+            </p>
+            <h1 className="mt-5 text-[2rem] font-extrabold leading-[1.08] sm:text-5xl">
+              Аренда спецтехники и транспорта{" "}
+              <span className="text-brand-orange">в Республике Коми и НАО</span>
+            </h1>
+            <p className="mt-5 max-w-xl text-base text-white/75 sm:text-lg">
+              Автокраны, автовышки, экскаваторы, бульдозеры, катки, вахтовые автобусы и легковой
+              транспорт — почасовая аренда с прозрачными тарифами, без предоплаты.
+            </p>
 
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <a
+                href={`tel:${PHONES[0].tel}`}
+                className="whitespace-nowrap rounded-xl bg-brand-orange px-6 py-3.5 text-center font-semibold text-white shadow-lg shadow-brand-orange/25 transition hover:-translate-y-0.5 hover:bg-brand-orange-dark"
+              >
+                Позвонить: {PHONES[0].display}
+              </a>
+              <a
+                href="#podbor"
+                className="whitespace-nowrap rounded-xl border border-white/25 px-6 py-3.5 text-center font-semibold text-white transition hover:border-white hover:bg-white/5"
+              >
+                Подобрать технику
+              </a>
+            </div>
+            <p className="mt-3 text-xs text-white/50">Звонки {WORK_HOURS}, заявки на сайте — круглосуточно</p>
+
+            <p className="mt-6 max-w-xl text-sm leading-relaxed text-white/65">
+              Наша база — в Усинске (пгт Парма):{" "}
+              <Link href="/spetstehnika/usinsk" className="font-semibold text-white underline underline-offset-4">
+                аренда спецтехники в Усинске
+              </Link>{" "}
+              без долгой подачи. Работаем также в{" "}
+              {HERO_CITIES.map((c, i) => (
+                <span key={c.slug}>
+                  {i > 0 && (i === HERO_CITIES.length - 1 ? " и " : ", ")}
+                  <Link href={`/spetstehnika/${c.slug}`} className="text-white/85 underline-offset-4 hover:underline">
+                    {c.label}
+                  </Link>
+                </span>
+              ))}
+              .
+            </p>
+          </div>
+
+          <figure className="blueprint-corners relative animate-fade-up [animation-delay:150ms]">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-2xl shadow-black/40 ring-1 ring-white/15">
+              <Image
+                src="/vehicles/own/avtokran-50t-1.jpg"
+                alt="Автокран Галичанин 50 т на шасси КАМАЗ у базы Арендатры"
+                fill
+                preload
+                sizes="(max-width: 1024px) 100vw, 560px"
+                className="object-cover"
+              />
+            </div>
+            {overallMin !== null && (
+              <span className="absolute -top-3 right-4 rounded-lg bg-brand-orange px-3 py-1.5 text-sm font-bold text-white shadow-lg">
+                от {formatPrice(overallMin)}/ч
+              </span>
+            )}
+            <figcaption className="absolute -bottom-6 left-4 flex items-center gap-3 rounded-xl bg-white px-4 py-3 text-brand-navy shadow-xl">
+              <span className="font-display text-2xl font-extrabold">50 т</span>
+              <span className="border-l border-black/10 pl-3 text-xs leading-snug text-gray-500">
+                Автокран Галичанин
+                <br />
+                КАМАЗ 6×6 · своя техника
+              </span>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      {/* Подбор техники: карточка поиска заходит на первый экран */}
+      <section id="podbor" className="relative z-10 mx-auto -mt-16 max-w-6xl scroll-mt-24 px-4">
+        <div className="rounded-2xl border border-black/5 bg-white p-4 shadow-xl shadow-brand-navy/10 sm:p-5">
+          <p className="mb-3 text-sm font-bold text-brand-navy">Подбор техники</p>
           <form
             action="/catalog"
             method="get"
-            className="mt-8 grid gap-3 rounded-xl bg-white p-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]"
+            className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]"
           >
             <input
               type="text"
               name="q"
-              placeholder="Что ищете? Например, автокран или экскаватор"
+              placeholder="Например, автокран или экскаватор"
               className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400"
             />
             <CategoryPicker groups={categoryGroups} />
@@ -214,41 +332,45 @@ export default async function HomePage() {
               Найти
             </button>
           </form>
+          <dl className="mt-4 grid grid-cols-2 gap-y-3 border-t border-black/5 pt-4 text-center sm:grid-cols-4">
+            {FACTS.map((f) => (
+              <div key={f.label}>
+                <dt className="font-display text-xl font-extrabold text-brand-blue sm:text-2xl">{f.value}</dt>
+                <dd className="mt-0.5 text-xs text-gray-500 sm:text-sm">{f.label}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
-      <section className="border-b border-black/5 bg-white">
-        <dl className="mx-auto grid max-w-6xl grid-cols-2 gap-px px-4 py-6 text-center sm:grid-cols-4">
-          {FACTS.map((f) => (
-            <div key={f.label} className="px-2 py-2">
-              <dt className="font-display text-2xl font-extrabold text-brand-blue">{f.value}</dt>
-              <dd className="mt-0.5 text-xs text-gray-500 sm:text-sm">{f.label}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-4 py-12">
+      {/* Группы техники — плитки с реальными фото */}
+      <section className="mx-auto max-w-6xl px-4 pb-10 pt-14">
         <div className="grid gap-4 sm:grid-cols-3">
           {GROUPS.map((g) => (
             <Link
               key={g.group}
               href={`/catalog?group=${g.group}`}
-              className="group relative overflow-hidden rounded-2xl border border-black/10 bg-white p-6 transition hover:-translate-y-1 hover:border-brand-blue hover:shadow-xl hover:shadow-brand-blue/10"
+              className="reveal group relative flex min-h-72 flex-col justify-end overflow-hidden rounded-2xl bg-brand-navy p-6 text-white"
             >
-              <span className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-brand-blue transition-transform duration-300 group-hover:scale-x-100" />
-              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-blue-light text-brand-blue">
-                <VehicleIcon group={g.group} className="h-7 w-7" />
-              </span>
-              <h2 className="mt-4 text-lg font-bold text-brand-navy">{g.title}</h2>
-              <p className="mt-1 text-sm text-gray-500">{g.description}</p>
-              {minPrice(g.group) !== null && (
-                <p className="mt-3 text-sm font-semibold text-brand-navy">
-                  от {formatPrice(minPrice(g.group))}/ч
-                </p>
-              )}
-              <span className="mt-4 inline-block text-sm font-semibold text-brand-blue transition group-hover:translate-x-1">
-                Смотреть →
+              <Image
+                src={g.photo}
+                alt={g.alt}
+                fill
+                sizes="(max-width: 640px) 100vw, 380px"
+                className="object-cover transition duration-500 group-hover:scale-105"
+              />
+              <span className="absolute inset-0 bg-linear-to-t from-brand-navy via-brand-navy/70 to-brand-navy/5" aria-hidden />
+              <span className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-brand-orange transition-transform duration-300 group-hover:scale-x-100" />
+              <span className="relative">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/15 backdrop-blur">
+                  <VehicleIcon group={g.group} className="h-6 w-6" />
+                </span>
+                <h2 className="mt-3 text-lg font-bold">{g.title}</h2>
+                <span className="mt-1 block text-sm text-white/75">{g.description}</span>
+                <span className="mt-3 flex items-center justify-between text-sm font-semibold">
+                  {minPrice(g.group) !== null ? <span>от {formatPrice(minPrice(g.group))}/ч</span> : <span />}
+                  <span className="transition group-hover:translate-x-1">Смотреть →</span>
+                </span>
               </span>
             </Link>
           ))}
@@ -257,110 +379,147 @@ export default async function HomePage() {
       </section>
 
       {featured.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pb-10">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-2xl font-extrabold text-brand-navy">Популярный транспорт</h2>
-            <Link href="/catalog" className="text-sm font-medium text-brand-blue">
+        <section className="mx-auto max-w-6xl px-4 pb-14">
+          <div className="mb-5 flex items-end justify-between gap-4">
+            <h2 className="text-2xl font-extrabold text-brand-navy sm:text-3xl">Популярный транспорт</h2>
+            <Link href="/catalog" className="shrink-0 text-sm font-semibold text-brand-blue hover:underline">
               Весь каталог →
             </Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((v) => (
-              <VehicleCard
-                key={v.id}
-                slug={v.slug}
-                title={v.title}
-                pricePerHour={v.pricePerHour}
-                city={v.city}
-                ownerName={v.owner.name}
-                categoryName={v.category.name}
-                categoryGroup={v.category.group}
-                attributes={v.attributes as Record<string, string> | null}
-              />
+              <div key={v.id} className="reveal flex [&>*]:w-full">
+                <VehicleCard
+                  slug={v.slug}
+                  title={v.title}
+                  pricePerHour={v.pricePerHour}
+                  city={v.city}
+                  ownerName={v.owner.name}
+                  categoryName={v.category.name}
+                  categoryGroup={v.category.group}
+                  attributes={v.attributes as Record<string, string> | null}
+                />
+              </div>
             ))}
           </div>
         </section>
       )}
 
-      <section className="mx-auto max-w-6xl px-4 py-10">
-        <h2 className="text-2xl font-extrabold text-brand-navy">Когда нам звонят</h2>
-        <p className="mt-1 text-sm text-gray-500">Задачи заказчиков и то, как мы их закрываем</p>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {NEEDS.map((n) => (
-            <div key={n.need} className="rounded-2xl border border-black/10 bg-white p-5">
-              <h3 className="font-bold text-brand-navy">{n.need}</h3>
+      {/* Доверие: заказчики отрасли и своя база */}
+      <section className="border-y border-black/5 bg-white">
+        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 lg:grid-cols-2 lg:items-center">
+          <div className="reveal">
+            <p className="text-xs font-bold uppercase tracking-wider text-brand-orange">Нам доверяют</p>
+            <h2 className="mt-2 text-2xl font-extrabold text-brand-navy sm:text-3xl">
+              Работаем с предприятиями нефтегазовой отрасли
+            </h2>
+            <p className="mt-3 max-w-xl text-gray-600">
+              Подаём технику и транспорт для заказчиков отрасли в Республике Коми и НАО. Вся техника
+              с документами, обученный персонал, работа по договору.
+            </p>
+            <ul className="mt-6 grid grid-cols-2 gap-3">
+              {CLIENTS.map((c) => (
+                <li
+                  key={c}
+                  className="font-display flex h-16 items-center justify-center rounded-xl border border-black/10 bg-background text-lg font-extrabold tracking-wide text-brand-navy/80"
+                >
+                  {c}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="reveal grid gap-5 sm:grid-cols-[0.9fr_1fr] sm:items-center">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-2xl sm:aspect-auto sm:h-full sm:min-h-80">
+              <Image
+                src="/vehicles/own/avtovyshka-2.jpg"
+                alt="Автовышка на шасси КАМАЗ 6×6 на базе в Парме"
+                fill
+                sizes="(max-width: 640px) 100vw, 280px"
+                className="object-cover"
+              />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-brand-navy">Своя техника, а не посредник</h3>
+              <ul className="mt-4 space-y-3">
+                {BASE_POINTS.map((p) => (
+                  <li key={p} className="flex gap-2.5 text-sm leading-relaxed text-gray-700">
+                    <CheckIcon />
+                    {p}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 py-14">
+        <h2 className="text-2xl font-extrabold text-brand-navy sm:text-3xl">Когда нам звонят</h2>
+        <p className="mt-1 text-gray-500">Задачи заказчиков и то, как мы их закрываем</p>
+        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {NEEDS.map((n, i) => (
+            <div
+              key={n.need}
+              className="reveal rounded-2xl border border-black/10 bg-white p-5 transition hover:border-brand-blue/40 hover:shadow-lg hover:shadow-brand-blue/5"
+            >
+              <span className="font-display text-sm font-extrabold text-brand-orange">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="mt-1 font-bold text-brand-navy">{n.need}</h3>
               <p className="mt-2 text-sm leading-relaxed text-gray-600">{n.answer}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-10">
-        <h2 className="mb-4 text-2xl font-extrabold text-brand-navy">Часто ищут</h2>
-        <div className="flex flex-wrap gap-2">
-          {(["usinsk", "uhta", "syktyvkar", "pechora", "vorkuta"] as const).flatMap((slug) =>
-            Object.keys(CATEGORY_SEO).slice(0, 4).map((cat) => {
-              const city = SERVICE_CITIES.find((c) => CITY_INFO[c].slug === slug)!;
-              return (
-                <Link
-                  key={`${cat}-${slug}`}
-                  href={`/arenda/${cat}/${slug}`}
-                  className="rounded-full border border-black/10 bg-white px-3 py-1 text-sm text-brand-blue hover:border-brand-blue"
-                >
-                  {(CATEGORY_SEO[cat]?.title ?? cat).replace(/^Аренда /, "Аренда ")} {CITY_INFO[city].in}
-                </Link>
-              );
-            })
-          )}
+      {/* Отзывы: свои опубликованные + ссылка на Яндекс Карты */}
+      <section className="mx-auto max-w-6xl px-4 pb-14">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-extrabold text-brand-navy sm:text-3xl">Отзывы заказчиков</h2>
+            {reviewData.count > 0 && reviewData.average !== null && (
+              <p className="mt-1 text-gray-500">
+                <span className="font-semibold text-brand-navy">★ {reviewData.average}</span> · {reviewData.count}{" "}
+                {reviewData.count === 1 ? "отзыв" : reviewData.count < 5 ? "отзыва" : "отзывов"} на сайте
+              </p>
+            )}
+          </div>
+          <a
+            href={PROFILES.yandexReviews}
+            target="_blank"
+            rel="noopener"
+            className="shrink-0 text-sm font-semibold text-brand-blue hover:underline"
+          >
+            Отзывы на Яндекс Картах →
+          </a>
         </div>
-        <div className="mt-6"><PartnerBlock /></div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-4 py-10">
-        <h2 className="mb-4 text-2xl font-extrabold text-brand-navy">Аренда спецтехники по городам</h2>
-        <div className="flex flex-wrap gap-2">
-          {SERVICE_CITIES.map((c) => (
-            <Link
-              key={c}
-              href={`/spetstehnika/${CITY_INFO[c].slug}`}
-              className="rounded-full border border-black/10 bg-white px-3 py-1 text-sm text-brand-blue hover:border-brand-blue"
-            >
-              Спецтехника {CITY_INFO[c].in}
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {combos.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-10">
-          <h2 className="mb-4 text-2xl font-extrabold text-brand-navy">Аренда техники по городам</h2>
-          <div className="flex flex-wrap gap-2">
-            {combos.map((c) => (
-              <Link
-                key={`${c.categorySlug}-${c.city}`}
-                href={landingPath(c.categorySlug, c.city)}
-                className="rounded-full border border-black/10 bg-white px-3 py-1 text-sm text-brand-blue hover:border-brand-blue"
-              >
-                {(CATEGORY_SEO[c.categorySlug]?.title ?? c.categorySlug)} {CITY_INFO[c.city].in}
-              </Link>
+        {reviewData.reviews.length > 0 ? (
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {reviewData.reviews.map((r) => (
+              <figure key={r.id} className="reveal flex flex-col rounded-2xl border border-black/10 bg-white p-5">
+                <Stars rating={r.rating} />
+                <blockquote className="mt-3 line-clamp-6 flex-1 text-sm leading-relaxed text-gray-700">
+                  «{r.text}»
+                </blockquote>
+                <figcaption className="mt-4 border-t border-black/5 pt-3 text-sm">
+                  <span className="font-semibold text-brand-navy">{r.authorName}</span>
+                  <Link href={`/vehicle/${r.vehicle.slug}`} className="block truncate text-xs text-gray-500 hover:text-brand-blue">
+                    {r.vehicle.title}
+                  </Link>
+                </figcaption>
+              </figure>
             ))}
           </div>
-        </section>
-      )}
-
-      <section className="mx-auto max-w-6xl px-4 pt-4 pb-2">
-        <div className="rounded-2xl border border-black/10 bg-white p-6">
-          <h2 className="text-xl font-extrabold text-brand-navy">Работаем с предприятиями нефтегазовой отрасли</h2>
-          <p className="mt-2 max-w-3xl text-sm text-gray-600">
-            Подаём технику и транспорт для заказчиков отрасли в Республике Коми и НАО, в том числе{" "}
-            {CLIENTS.join(", ")}. Вся техника с документами, обученный персонал, оплата наличным и
-            безналичным расчётом, работа по договору.
-          </p>
-        </div>
+        ) : (
+          <div className="mt-6 rounded-2xl border border-black/10 bg-white p-6 text-gray-600">
+            Отзывы о работе Арендатры собраны в нашей карточке на Яндекс Картах — там же можно
+            оставить свой после заказа.
+          </div>
+        )}
       </section>
 
-      <section className="relative mx-auto max-w-6xl px-4 py-12">
-        <h2 className="mb-8 text-2xl font-extrabold text-brand-navy">Как это работает</h2>
+      <section className="relative mx-auto max-w-6xl px-4 pb-14">
+        <h2 className="mb-8 text-2xl font-extrabold text-brand-navy sm:text-3xl">Как это работает</h2>
         <div className="relative grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div
             className="absolute left-[12%] right-[12%] top-9 hidden border-t-2 border-dashed border-brand-blue/25 lg:block"
@@ -369,7 +528,7 @@ export default async function HomePage() {
           {STEPS.map((s, i) => (
             <div
               key={s.title}
-              className="relative rounded-2xl border border-black/10 bg-white p-6 shadow-sm"
+              className="reveal relative rounded-2xl border border-black/10 bg-white p-6 shadow-sm"
             >
               <span className="font-display flex h-12 w-12 items-center justify-center rounded-full bg-brand-navy text-lg font-extrabold text-white ring-4 ring-brand-blue-light">
                 {i + 1}
@@ -381,8 +540,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-12">
-        <h2 className="mb-4 text-2xl font-extrabold text-brand-navy">Вопросы и ответы</h2>
+      <section className="mx-auto max-w-6xl px-4 pb-14">
+        <h2 className="mb-5 text-2xl font-extrabold text-brand-navy sm:text-3xl">Вопросы и ответы</h2>
         <script
           type="application/ld+json"
           nonce={nonce}
@@ -393,7 +552,7 @@ export default async function HomePage() {
             <details key={f.q} className="group p-5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-brand-navy">
                 {f.q}
-                <span className="text-brand-blue transition group-open:rotate-45" aria-hidden>
+                <span className="text-xl text-brand-blue transition group-open:rotate-45" aria-hidden>
                   +
                 </span>
               </summary>
@@ -403,13 +562,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section id="callback" className="mx-auto max-w-6xl scroll-mt-24 px-4 pb-16">
+      <section id="callback" className="mx-auto max-w-6xl scroll-mt-24 px-4 pb-14">
         <div className="relative overflow-hidden rounded-3xl bg-brand-navy p-8 sm:p-10">
           <div className="bg-blueprint absolute inset-0" aria-hidden />
-          <div
-            className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-brand-blue/30 blur-3xl"
-            aria-hidden
-          />
           <div className="absolute -bottom-1 right-6 hidden h-40 w-40 items-end justify-center overflow-hidden rounded-t-full bg-white sm:flex md:h-48 md:w-48">
             <LogoMark className="h-[88%] w-auto translate-y-1" />
           </div>
@@ -439,6 +594,38 @@ export default async function HomePage() {
               <CallbackForm onDark />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Перелинковка на города и посадочные: один аккуратный указатель по городам */}
+      <section className="mx-auto max-w-6xl px-4 pb-16">
+        <h2 className="text-2xl font-extrabold text-brand-navy sm:text-3xl">Аренда спецтехники по городам</h2>
+        <p className="mt-1 text-gray-500">Подаём технику по Республике Коми и Ненецкому автономному округу</p>
+        <div className="mt-7 columns-1 gap-6 sm:columns-2 lg:columns-3">
+          {cityLinks.map(({ city, info, links }) => (
+            <div key={city} className="mb-6 break-inside-avoid">
+              <Link
+                href={`/spetstehnika/${info.slug}`}
+                className="font-semibold text-brand-navy hover:text-brand-blue"
+              >
+                Спецтехника {info.in}
+              </Link>
+              {links.length > 0 && (
+                <ul className="mt-1.5 space-y-1 border-l-2 border-brand-blue-light pl-3">
+                  {links.map((l) => (
+                    <li key={l.href}>
+                      <Link href={l.href} className="text-sm text-gray-500 hover:text-brand-blue">
+                        {l.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="mt-4">
+          <PartnerBlock />
         </div>
       </section>
     </div>

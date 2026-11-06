@@ -4,7 +4,8 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   images: {
-    formats: ["image/avif", "image/webp"],
+    // Только WebP: AVIF сервер кодирует 1,5–2 с на картинку, и карточки подолгу стоят пустыми
+    formats: ["image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 30,
   },
   async headers() {

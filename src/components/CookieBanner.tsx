@@ -34,22 +34,21 @@ export function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-black/10 bg-white px-4 py-4 shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 sm:flex-row sm:justify-between">
-        <p className="text-sm text-gray-600">
-          Сайт использует технически необходимые cookie для входа в личный кабинет и
-          админ-панель, а также cookie сервиса статистики Яндекс.Метрика (анонимная
-          статистика посещений). Нажимая «Принимаю», вы соглашаетесь с их использованием —
-          подробнее в{" "}
+    // На телефоне — компактная плашка над нижней панелью «Позвонить», чтобы не закрывать её
+    <div className="fixed inset-x-2 bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))] z-50 rounded-xl border border-black/10 bg-white px-3 py-2.5 shadow-lg sm:inset-x-0 sm:bottom-0 sm:rounded-none sm:border-x-0 sm:border-b-0 sm:px-4 sm:py-3">
+      <div className="mx-auto flex max-w-6xl items-center gap-3 sm:justify-between">
+        <p className="text-xs leading-snug text-gray-600 sm:text-sm">
+          Используем cookie для входа в кабинет и анонимной статистики Яндекс.Метрики.
+          Нажимая «Принимаю», вы соглашаетесь с их использованием —{" "}
           <Link href="/privacy" className="text-brand-blue hover:underline">
-            политике конфиденциальности
+            подробнее
           </Link>
           .
         </p>
         <button
           type="button"
           onClick={accept}
-          className="w-full shrink-0 rounded-lg bg-brand-orange px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-orange-dark sm:w-auto"
+          className="shrink-0 rounded-lg bg-brand-orange px-4 py-2 text-sm font-medium text-white hover:bg-brand-orange-dark"
         >
           Принимаю
         </button>
